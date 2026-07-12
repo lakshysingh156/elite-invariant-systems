@@ -63,8 +63,7 @@ export function CommandPalette({
   const navigate = useNavigate();
   const go = (to: string, params?: Record<string, string>) => {
     setOpen(false);
-    // @ts-expect-error dynamic route
-    navigate({ to, params });
+    navigate({ to, params } as never);
   };
 
   return (
