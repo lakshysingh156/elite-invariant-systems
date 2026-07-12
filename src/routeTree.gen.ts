@@ -14,7 +14,9 @@ import { Route as LoginRouteImport } from './routes/login'
 import { Route as DashboardRouteImport } from './routes/_dashboard'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as DashboardDashboardRouteImport } from './routes/_dashboard.dashboard'
+import { Route as DashboardContractRouteImport } from './routes/_dashboard.contract'
 import { Route as DashboardApisIndexRouteImport } from './routes/_dashboard.apis.index'
+import { Route as DashboardApisApiIdRouteImport } from './routes/_dashboard.apis.$apiId'
 
 const SignupRoute = SignupRouteImport.update({
   id: '/signup',
@@ -40,9 +42,19 @@ const DashboardDashboardRoute = DashboardDashboardRouteImport.update({
   path: '/dashboard',
   getParentRoute: () => DashboardRoute,
 } as any)
+const DashboardContractRoute = DashboardContractRouteImport.update({
+  id: '/contract',
+  path: '/contract',
+  getParentRoute: () => DashboardRoute,
+} as any)
 const DashboardApisIndexRoute = DashboardApisIndexRouteImport.update({
   id: '/apis/',
   path: '/apis/',
+  getParentRoute: () => DashboardRoute,
+} as any)
+const DashboardApisApiIdRoute = DashboardApisApiIdRouteImport.update({
+  id: '/apis/$apiId',
+  path: '/apis/$apiId',
   getParentRoute: () => DashboardRoute,
 } as any)
 
@@ -50,14 +62,18 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
   '/signup': typeof SignupRoute
+  '/contract': typeof DashboardContractRoute
   '/dashboard': typeof DashboardDashboardRoute
+  '/apis/$apiId': typeof DashboardApisApiIdRoute
   '/apis/': typeof DashboardApisIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
   '/signup': typeof SignupRoute
+  '/contract': typeof DashboardContractRoute
   '/dashboard': typeof DashboardDashboardRoute
+  '/apis/$apiId': typeof DashboardApisApiIdRoute
   '/apis': typeof DashboardApisIndexRoute
 }
 export interface FileRoutesById {
@@ -66,21 +82,39 @@ export interface FileRoutesById {
   '/_dashboard': typeof DashboardRouteWithChildren
   '/login': typeof LoginRoute
   '/signup': typeof SignupRoute
+  '/_dashboard/contract': typeof DashboardContractRoute
   '/_dashboard/dashboard': typeof DashboardDashboardRoute
+  '/_dashboard/apis/$apiId': typeof DashboardApisApiIdRoute
   '/_dashboard/apis/': typeof DashboardApisIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/login' | '/signup' | '/dashboard' | '/apis/'
+  fullPaths:
+    | '/'
+    | '/login'
+    | '/signup'
+    | '/contract'
+    | '/dashboard'
+    | '/apis/$apiId'
+    | '/apis/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/login' | '/signup' | '/dashboard' | '/apis'
+  to:
+    | '/'
+    | '/login'
+    | '/signup'
+    | '/contract'
+    | '/dashboard'
+    | '/apis/$apiId'
+    | '/apis'
   id:
     | '__root__'
     | '/'
     | '/_dashboard'
     | '/login'
     | '/signup'
+    | '/_dashboard/contract'
     | '/_dashboard/dashboard'
+    | '/_dashboard/apis/$apiId'
     | '/_dashboard/apis/'
   fileRoutesById: FileRoutesById
 }
@@ -128,6 +162,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardDashboardRouteImport
       parentRoute: typeof DashboardRoute
     }
+    '/_dashboard/contract': {
+      id: '/_dashboard/contract'
+      path: '/contract'
+      fullPath: '/contract'
+      preLoaderRoute: typeof DashboardContractRouteImport
+      parentRoute: typeof DashboardRoute
+    }
     '/_dashboard/apis/': {
       id: '/_dashboard/apis/'
       path: '/apis'
@@ -135,16 +176,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardApisIndexRouteImport
       parentRoute: typeof DashboardRoute
     }
+    '/_dashboard/apis/$apiId': {
+      id: '/_dashboard/apis/$apiId'
+      path: '/apis/$apiId'
+      fullPath: '/apis/$apiId'
+      preLoaderRoute: typeof DashboardApisApiIdRouteImport
+      parentRoute: typeof DashboardRoute
+    }
   }
 }
 
 interface DashboardRouteChildren {
+  DashboardContractRoute: typeof DashboardContractRoute
   DashboardDashboardRoute: typeof DashboardDashboardRoute
+  DashboardApisApiIdRoute: typeof DashboardApisApiIdRoute
   DashboardApisIndexRoute: typeof DashboardApisIndexRoute
 }
 
 const DashboardRouteChildren: DashboardRouteChildren = {
+  DashboardContractRoute: DashboardContractRoute,
   DashboardDashboardRoute: DashboardDashboardRoute,
+  DashboardApisApiIdRoute: DashboardApisApiIdRoute,
   DashboardApisIndexRoute: DashboardApisIndexRoute,
 }
 
