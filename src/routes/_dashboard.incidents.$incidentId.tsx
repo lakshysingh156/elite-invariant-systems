@@ -145,7 +145,7 @@ function IncidentDetail() {
 
             <Panel title="Investigation timeline">
               <div className="relative space-y-0 p-4">
-                {incident.timeline.map((ev, i) => (
+                {incident.timeline.map((ev: (typeof incident.timeline)[number], i: number) => (
                   <motion.div
                     key={i}
                     initial={{ opacity: 0, x: -6 }}

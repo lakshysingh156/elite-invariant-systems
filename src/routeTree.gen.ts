@@ -16,7 +16,9 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as DashboardDriftRouteImport } from './routes/_dashboard.drift'
 import { Route as DashboardDashboardRouteImport } from './routes/_dashboard.dashboard'
 import { Route as DashboardContractRouteImport } from './routes/_dashboard.contract'
+import { Route as DashboardIncidentsIndexRouteImport } from './routes/_dashboard.incidents.index'
 import { Route as DashboardApisIndexRouteImport } from './routes/_dashboard.apis.index'
+import { Route as DashboardIncidentsIncidentIdRouteImport } from './routes/_dashboard.incidents.$incidentId'
 import { Route as DashboardApisApiIdRouteImport } from './routes/_dashboard.apis.$apiId'
 
 const SignupRoute = SignupRouteImport.update({
@@ -53,11 +55,22 @@ const DashboardContractRoute = DashboardContractRouteImport.update({
   path: '/contract',
   getParentRoute: () => DashboardRoute,
 } as any)
+const DashboardIncidentsIndexRoute = DashboardIncidentsIndexRouteImport.update({
+  id: '/incidents/',
+  path: '/incidents/',
+  getParentRoute: () => DashboardRoute,
+} as any)
 const DashboardApisIndexRoute = DashboardApisIndexRouteImport.update({
   id: '/apis/',
   path: '/apis/',
   getParentRoute: () => DashboardRoute,
 } as any)
+const DashboardIncidentsIncidentIdRoute =
+  DashboardIncidentsIncidentIdRouteImport.update({
+    id: '/incidents/$incidentId',
+    path: '/incidents/$incidentId',
+    getParentRoute: () => DashboardRoute,
+  } as any)
 const DashboardApisApiIdRoute = DashboardApisApiIdRouteImport.update({
   id: '/apis/$apiId',
   path: '/apis/$apiId',
@@ -72,7 +85,9 @@ export interface FileRoutesByFullPath {
   '/dashboard': typeof DashboardDashboardRoute
   '/drift': typeof DashboardDriftRoute
   '/apis/$apiId': typeof DashboardApisApiIdRoute
+  '/incidents/$incidentId': typeof DashboardIncidentsIncidentIdRoute
   '/apis/': typeof DashboardApisIndexRoute
+  '/incidents/': typeof DashboardIncidentsIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -82,7 +97,9 @@ export interface FileRoutesByTo {
   '/dashboard': typeof DashboardDashboardRoute
   '/drift': typeof DashboardDriftRoute
   '/apis/$apiId': typeof DashboardApisApiIdRoute
+  '/incidents/$incidentId': typeof DashboardIncidentsIncidentIdRoute
   '/apis': typeof DashboardApisIndexRoute
+  '/incidents': typeof DashboardIncidentsIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -94,7 +111,9 @@ export interface FileRoutesById {
   '/_dashboard/dashboard': typeof DashboardDashboardRoute
   '/_dashboard/drift': typeof DashboardDriftRoute
   '/_dashboard/apis/$apiId': typeof DashboardApisApiIdRoute
+  '/_dashboard/incidents/$incidentId': typeof DashboardIncidentsIncidentIdRoute
   '/_dashboard/apis/': typeof DashboardApisIndexRoute
+  '/_dashboard/incidents/': typeof DashboardIncidentsIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -106,7 +125,9 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/drift'
     | '/apis/$apiId'
+    | '/incidents/$incidentId'
     | '/apis/'
+    | '/incidents/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -116,7 +137,9 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/drift'
     | '/apis/$apiId'
+    | '/incidents/$incidentId'
     | '/apis'
+    | '/incidents'
   id:
     | '__root__'
     | '/'
@@ -127,7 +150,9 @@ export interface FileRouteTypes {
     | '/_dashboard/dashboard'
     | '/_dashboard/drift'
     | '/_dashboard/apis/$apiId'
+    | '/_dashboard/incidents/$incidentId'
     | '/_dashboard/apis/'
+    | '/_dashboard/incidents/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -188,11 +213,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardContractRouteImport
       parentRoute: typeof DashboardRoute
     }
+    '/_dashboard/incidents/': {
+      id: '/_dashboard/incidents/'
+      path: '/incidents'
+      fullPath: '/incidents/'
+      preLoaderRoute: typeof DashboardIncidentsIndexRouteImport
+      parentRoute: typeof DashboardRoute
+    }
     '/_dashboard/apis/': {
       id: '/_dashboard/apis/'
       path: '/apis'
       fullPath: '/apis/'
       preLoaderRoute: typeof DashboardApisIndexRouteImport
+      parentRoute: typeof DashboardRoute
+    }
+    '/_dashboard/incidents/$incidentId': {
+      id: '/_dashboard/incidents/$incidentId'
+      path: '/incidents/$incidentId'
+      fullPath: '/incidents/$incidentId'
+      preLoaderRoute: typeof DashboardIncidentsIncidentIdRouteImport
       parentRoute: typeof DashboardRoute
     }
     '/_dashboard/apis/$apiId': {
@@ -210,7 +249,9 @@ interface DashboardRouteChildren {
   DashboardDashboardRoute: typeof DashboardDashboardRoute
   DashboardDriftRoute: typeof DashboardDriftRoute
   DashboardApisApiIdRoute: typeof DashboardApisApiIdRoute
+  DashboardIncidentsIncidentIdRoute: typeof DashboardIncidentsIncidentIdRoute
   DashboardApisIndexRoute: typeof DashboardApisIndexRoute
+  DashboardIncidentsIndexRoute: typeof DashboardIncidentsIndexRoute
 }
 
 const DashboardRouteChildren: DashboardRouteChildren = {
@@ -218,7 +259,9 @@ const DashboardRouteChildren: DashboardRouteChildren = {
   DashboardDashboardRoute: DashboardDashboardRoute,
   DashboardDriftRoute: DashboardDriftRoute,
   DashboardApisApiIdRoute: DashboardApisApiIdRoute,
+  DashboardIncidentsIncidentIdRoute: DashboardIncidentsIncidentIdRoute,
   DashboardApisIndexRoute: DashboardApisIndexRoute,
+  DashboardIncidentsIndexRoute: DashboardIncidentsIndexRoute,
 }
 
 const DashboardRouteWithChildren = DashboardRoute._addFileChildren(
