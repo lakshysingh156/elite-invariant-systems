@@ -9,38 +9,230 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as SignupRouteImport } from './routes/signup'
+import { Route as LoginRouteImport } from './routes/login'
+import { Route as DashboardRouteImport } from './routes/_dashboard'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as DashboardSettingsRouteImport } from './routes/_dashboard.settings'
+import { Route as DashboardGraphRouteImport } from './routes/_dashboard.graph'
+import { Route as DashboardGithubRouteImport } from './routes/_dashboard.github'
+import { Route as DashboardDriftRouteImport } from './routes/_dashboard.drift'
+import { Route as DashboardDashboardRouteImport } from './routes/_dashboard.dashboard'
+import { Route as DashboardCopilotRouteImport } from './routes/_dashboard.copilot'
+import { Route as DashboardContractRouteImport } from './routes/_dashboard.contract'
+import { Route as DashboardIncidentsIndexRouteImport } from './routes/_dashboard.incidents.index'
+import { Route as DashboardApisIndexRouteImport } from './routes/_dashboard.apis.index'
+import { Route as DashboardIncidentsIncidentIdRouteImport } from './routes/_dashboard.incidents.$incidentId'
+import { Route as DashboardApisApiIdRouteImport } from './routes/_dashboard.apis.$apiId'
 
+const SignupRoute = SignupRouteImport.update({
+  id: '/signup',
+  path: '/signup',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LoginRoute = LoginRouteImport.update({
+  id: '/login',
+  path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DashboardRoute = DashboardRouteImport.update({
+  id: '/_dashboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DashboardSettingsRoute = DashboardSettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => DashboardRoute,
+} as any)
+const DashboardGraphRoute = DashboardGraphRouteImport.update({
+  id: '/graph',
+  path: '/graph',
+  getParentRoute: () => DashboardRoute,
+} as any)
+const DashboardGithubRoute = DashboardGithubRouteImport.update({
+  id: '/github',
+  path: '/github',
+  getParentRoute: () => DashboardRoute,
+} as any)
+const DashboardDriftRoute = DashboardDriftRouteImport.update({
+  id: '/drift',
+  path: '/drift',
+  getParentRoute: () => DashboardRoute,
+} as any)
+const DashboardDashboardRoute = DashboardDashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
+  getParentRoute: () => DashboardRoute,
+} as any)
+const DashboardCopilotRoute = DashboardCopilotRouteImport.update({
+  id: '/copilot',
+  path: '/copilot',
+  getParentRoute: () => DashboardRoute,
+} as any)
+const DashboardContractRoute = DashboardContractRouteImport.update({
+  id: '/contract',
+  path: '/contract',
+  getParentRoute: () => DashboardRoute,
+} as any)
+const DashboardIncidentsIndexRoute = DashboardIncidentsIndexRouteImport.update({
+  id: '/incidents/',
+  path: '/incidents/',
+  getParentRoute: () => DashboardRoute,
+} as any)
+const DashboardApisIndexRoute = DashboardApisIndexRouteImport.update({
+  id: '/apis/',
+  path: '/apis/',
+  getParentRoute: () => DashboardRoute,
+} as any)
+const DashboardIncidentsIncidentIdRoute =
+  DashboardIncidentsIncidentIdRouteImport.update({
+    id: '/incidents/$incidentId',
+    path: '/incidents/$incidentId',
+    getParentRoute: () => DashboardRoute,
+  } as any)
+const DashboardApisApiIdRoute = DashboardApisApiIdRouteImport.update({
+  id: '/apis/$apiId',
+  path: '/apis/$apiId',
+  getParentRoute: () => DashboardRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/login': typeof LoginRoute
+  '/signup': typeof SignupRoute
+  '/contract': typeof DashboardContractRoute
+  '/copilot': typeof DashboardCopilotRoute
+  '/dashboard': typeof DashboardDashboardRoute
+  '/drift': typeof DashboardDriftRoute
+  '/github': typeof DashboardGithubRoute
+  '/graph': typeof DashboardGraphRoute
+  '/settings': typeof DashboardSettingsRoute
+  '/apis/$apiId': typeof DashboardApisApiIdRoute
+  '/incidents/$incidentId': typeof DashboardIncidentsIncidentIdRoute
+  '/apis/': typeof DashboardApisIndexRoute
+  '/incidents/': typeof DashboardIncidentsIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/login': typeof LoginRoute
+  '/signup': typeof SignupRoute
+  '/contract': typeof DashboardContractRoute
+  '/copilot': typeof DashboardCopilotRoute
+  '/dashboard': typeof DashboardDashboardRoute
+  '/drift': typeof DashboardDriftRoute
+  '/github': typeof DashboardGithubRoute
+  '/graph': typeof DashboardGraphRoute
+  '/settings': typeof DashboardSettingsRoute
+  '/apis/$apiId': typeof DashboardApisApiIdRoute
+  '/incidents/$incidentId': typeof DashboardIncidentsIncidentIdRoute
+  '/apis': typeof DashboardApisIndexRoute
+  '/incidents': typeof DashboardIncidentsIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/_dashboard': typeof DashboardRouteWithChildren
+  '/login': typeof LoginRoute
+  '/signup': typeof SignupRoute
+  '/_dashboard/contract': typeof DashboardContractRoute
+  '/_dashboard/copilot': typeof DashboardCopilotRoute
+  '/_dashboard/dashboard': typeof DashboardDashboardRoute
+  '/_dashboard/drift': typeof DashboardDriftRoute
+  '/_dashboard/github': typeof DashboardGithubRoute
+  '/_dashboard/graph': typeof DashboardGraphRoute
+  '/_dashboard/settings': typeof DashboardSettingsRoute
+  '/_dashboard/apis/$apiId': typeof DashboardApisApiIdRoute
+  '/_dashboard/incidents/$incidentId': typeof DashboardIncidentsIncidentIdRoute
+  '/_dashboard/apis/': typeof DashboardApisIndexRoute
+  '/_dashboard/incidents/': typeof DashboardIncidentsIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/login'
+    | '/signup'
+    | '/contract'
+    | '/copilot'
+    | '/dashboard'
+    | '/drift'
+    | '/github'
+    | '/graph'
+    | '/settings'
+    | '/apis/$apiId'
+    | '/incidents/$incidentId'
+    | '/apis/'
+    | '/incidents/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/login'
+    | '/signup'
+    | '/contract'
+    | '/copilot'
+    | '/dashboard'
+    | '/drift'
+    | '/github'
+    | '/graph'
+    | '/settings'
+    | '/apis/$apiId'
+    | '/incidents/$incidentId'
+    | '/apis'
+    | '/incidents'
+  id:
+    | '__root__'
+    | '/'
+    | '/_dashboard'
+    | '/login'
+    | '/signup'
+    | '/_dashboard/contract'
+    | '/_dashboard/copilot'
+    | '/_dashboard/dashboard'
+    | '/_dashboard/drift'
+    | '/_dashboard/github'
+    | '/_dashboard/graph'
+    | '/_dashboard/settings'
+    | '/_dashboard/apis/$apiId'
+    | '/_dashboard/incidents/$incidentId'
+    | '/_dashboard/apis/'
+    | '/_dashboard/incidents/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  DashboardRoute: typeof DashboardRouteWithChildren
+  LoginRoute: typeof LoginRoute
+  SignupRoute: typeof SignupRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/signup': {
+      id: '/signup'
+      path: '/signup'
+      fullPath: '/signup'
+      preLoaderRoute: typeof SignupRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_dashboard': {
+      id: '/_dashboard'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof DashboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -48,22 +240,124 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_dashboard/settings': {
+      id: '/_dashboard/settings'
+      path: '/settings'
+      fullPath: '/settings'
+      preLoaderRoute: typeof DashboardSettingsRouteImport
+      parentRoute: typeof DashboardRoute
+    }
+    '/_dashboard/graph': {
+      id: '/_dashboard/graph'
+      path: '/graph'
+      fullPath: '/graph'
+      preLoaderRoute: typeof DashboardGraphRouteImport
+      parentRoute: typeof DashboardRoute
+    }
+    '/_dashboard/github': {
+      id: '/_dashboard/github'
+      path: '/github'
+      fullPath: '/github'
+      preLoaderRoute: typeof DashboardGithubRouteImport
+      parentRoute: typeof DashboardRoute
+    }
+    '/_dashboard/drift': {
+      id: '/_dashboard/drift'
+      path: '/drift'
+      fullPath: '/drift'
+      preLoaderRoute: typeof DashboardDriftRouteImport
+      parentRoute: typeof DashboardRoute
+    }
+    '/_dashboard/dashboard': {
+      id: '/_dashboard/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof DashboardDashboardRouteImport
+      parentRoute: typeof DashboardRoute
+    }
+    '/_dashboard/copilot': {
+      id: '/_dashboard/copilot'
+      path: '/copilot'
+      fullPath: '/copilot'
+      preLoaderRoute: typeof DashboardCopilotRouteImport
+      parentRoute: typeof DashboardRoute
+    }
+    '/_dashboard/contract': {
+      id: '/_dashboard/contract'
+      path: '/contract'
+      fullPath: '/contract'
+      preLoaderRoute: typeof DashboardContractRouteImport
+      parentRoute: typeof DashboardRoute
+    }
+    '/_dashboard/incidents/': {
+      id: '/_dashboard/incidents/'
+      path: '/incidents'
+      fullPath: '/incidents/'
+      preLoaderRoute: typeof DashboardIncidentsIndexRouteImport
+      parentRoute: typeof DashboardRoute
+    }
+    '/_dashboard/apis/': {
+      id: '/_dashboard/apis/'
+      path: '/apis'
+      fullPath: '/apis/'
+      preLoaderRoute: typeof DashboardApisIndexRouteImport
+      parentRoute: typeof DashboardRoute
+    }
+    '/_dashboard/incidents/$incidentId': {
+      id: '/_dashboard/incidents/$incidentId'
+      path: '/incidents/$incidentId'
+      fullPath: '/incidents/$incidentId'
+      preLoaderRoute: typeof DashboardIncidentsIncidentIdRouteImport
+      parentRoute: typeof DashboardRoute
+    }
+    '/_dashboard/apis/$apiId': {
+      id: '/_dashboard/apis/$apiId'
+      path: '/apis/$apiId'
+      fullPath: '/apis/$apiId'
+      preLoaderRoute: typeof DashboardApisApiIdRouteImport
+      parentRoute: typeof DashboardRoute
+    }
   }
 }
 
+interface DashboardRouteChildren {
+  DashboardContractRoute: typeof DashboardContractRoute
+  DashboardCopilotRoute: typeof DashboardCopilotRoute
+  DashboardDashboardRoute: typeof DashboardDashboardRoute
+  DashboardDriftRoute: typeof DashboardDriftRoute
+  DashboardGithubRoute: typeof DashboardGithubRoute
+  DashboardGraphRoute: typeof DashboardGraphRoute
+  DashboardSettingsRoute: typeof DashboardSettingsRoute
+  DashboardApisApiIdRoute: typeof DashboardApisApiIdRoute
+  DashboardIncidentsIncidentIdRoute: typeof DashboardIncidentsIncidentIdRoute
+  DashboardApisIndexRoute: typeof DashboardApisIndexRoute
+  DashboardIncidentsIndexRoute: typeof DashboardIncidentsIndexRoute
+}
+
+const DashboardRouteChildren: DashboardRouteChildren = {
+  DashboardContractRoute: DashboardContractRoute,
+  DashboardCopilotRoute: DashboardCopilotRoute,
+  DashboardDashboardRoute: DashboardDashboardRoute,
+  DashboardDriftRoute: DashboardDriftRoute,
+  DashboardGithubRoute: DashboardGithubRoute,
+  DashboardGraphRoute: DashboardGraphRoute,
+  DashboardSettingsRoute: DashboardSettingsRoute,
+  DashboardApisApiIdRoute: DashboardApisApiIdRoute,
+  DashboardIncidentsIncidentIdRoute: DashboardIncidentsIncidentIdRoute,
+  DashboardApisIndexRoute: DashboardApisIndexRoute,
+  DashboardIncidentsIndexRoute: DashboardIncidentsIndexRoute,
+}
+
+const DashboardRouteWithChildren = DashboardRoute._addFileChildren(
+  DashboardRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  DashboardRoute: DashboardRouteWithChildren,
+  LoginRoute: LoginRoute,
+  SignupRoute: SignupRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
