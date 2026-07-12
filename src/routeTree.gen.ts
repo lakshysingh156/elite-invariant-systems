@@ -13,7 +13,9 @@ import { Route as SignupRouteImport } from './routes/signup'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as DashboardRouteImport } from './routes/_dashboard'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as DashboardSettingsRouteImport } from './routes/_dashboard.settings'
 import { Route as DashboardGraphRouteImport } from './routes/_dashboard.graph'
+import { Route as DashboardGithubRouteImport } from './routes/_dashboard.github'
 import { Route as DashboardDriftRouteImport } from './routes/_dashboard.drift'
 import { Route as DashboardDashboardRouteImport } from './routes/_dashboard.dashboard'
 import { Route as DashboardCopilotRouteImport } from './routes/_dashboard.copilot'
@@ -42,9 +44,19 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DashboardSettingsRoute = DashboardSettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => DashboardRoute,
+} as any)
 const DashboardGraphRoute = DashboardGraphRouteImport.update({
   id: '/graph',
   path: '/graph',
+  getParentRoute: () => DashboardRoute,
+} as any)
+const DashboardGithubRoute = DashboardGithubRouteImport.update({
+  id: '/github',
+  path: '/github',
   getParentRoute: () => DashboardRoute,
 } as any)
 const DashboardDriftRoute = DashboardDriftRouteImport.update({
@@ -97,7 +109,9 @@ export interface FileRoutesByFullPath {
   '/copilot': typeof DashboardCopilotRoute
   '/dashboard': typeof DashboardDashboardRoute
   '/drift': typeof DashboardDriftRoute
+  '/github': typeof DashboardGithubRoute
   '/graph': typeof DashboardGraphRoute
+  '/settings': typeof DashboardSettingsRoute
   '/apis/$apiId': typeof DashboardApisApiIdRoute
   '/incidents/$incidentId': typeof DashboardIncidentsIncidentIdRoute
   '/apis/': typeof DashboardApisIndexRoute
@@ -111,7 +125,9 @@ export interface FileRoutesByTo {
   '/copilot': typeof DashboardCopilotRoute
   '/dashboard': typeof DashboardDashboardRoute
   '/drift': typeof DashboardDriftRoute
+  '/github': typeof DashboardGithubRoute
   '/graph': typeof DashboardGraphRoute
+  '/settings': typeof DashboardSettingsRoute
   '/apis/$apiId': typeof DashboardApisApiIdRoute
   '/incidents/$incidentId': typeof DashboardIncidentsIncidentIdRoute
   '/apis': typeof DashboardApisIndexRoute
@@ -127,7 +143,9 @@ export interface FileRoutesById {
   '/_dashboard/copilot': typeof DashboardCopilotRoute
   '/_dashboard/dashboard': typeof DashboardDashboardRoute
   '/_dashboard/drift': typeof DashboardDriftRoute
+  '/_dashboard/github': typeof DashboardGithubRoute
   '/_dashboard/graph': typeof DashboardGraphRoute
+  '/_dashboard/settings': typeof DashboardSettingsRoute
   '/_dashboard/apis/$apiId': typeof DashboardApisApiIdRoute
   '/_dashboard/incidents/$incidentId': typeof DashboardIncidentsIncidentIdRoute
   '/_dashboard/apis/': typeof DashboardApisIndexRoute
@@ -143,7 +161,9 @@ export interface FileRouteTypes {
     | '/copilot'
     | '/dashboard'
     | '/drift'
+    | '/github'
     | '/graph'
+    | '/settings'
     | '/apis/$apiId'
     | '/incidents/$incidentId'
     | '/apis/'
@@ -157,7 +177,9 @@ export interface FileRouteTypes {
     | '/copilot'
     | '/dashboard'
     | '/drift'
+    | '/github'
     | '/graph'
+    | '/settings'
     | '/apis/$apiId'
     | '/incidents/$incidentId'
     | '/apis'
@@ -172,7 +194,9 @@ export interface FileRouteTypes {
     | '/_dashboard/copilot'
     | '/_dashboard/dashboard'
     | '/_dashboard/drift'
+    | '/_dashboard/github'
     | '/_dashboard/graph'
+    | '/_dashboard/settings'
     | '/_dashboard/apis/$apiId'
     | '/_dashboard/incidents/$incidentId'
     | '/_dashboard/apis/'
@@ -216,11 +240,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_dashboard/settings': {
+      id: '/_dashboard/settings'
+      path: '/settings'
+      fullPath: '/settings'
+      preLoaderRoute: typeof DashboardSettingsRouteImport
+      parentRoute: typeof DashboardRoute
+    }
     '/_dashboard/graph': {
       id: '/_dashboard/graph'
       path: '/graph'
       fullPath: '/graph'
       preLoaderRoute: typeof DashboardGraphRouteImport
+      parentRoute: typeof DashboardRoute
+    }
+    '/_dashboard/github': {
+      id: '/_dashboard/github'
+      path: '/github'
+      fullPath: '/github'
+      preLoaderRoute: typeof DashboardGithubRouteImport
       parentRoute: typeof DashboardRoute
     }
     '/_dashboard/drift': {
@@ -287,7 +325,9 @@ interface DashboardRouteChildren {
   DashboardCopilotRoute: typeof DashboardCopilotRoute
   DashboardDashboardRoute: typeof DashboardDashboardRoute
   DashboardDriftRoute: typeof DashboardDriftRoute
+  DashboardGithubRoute: typeof DashboardGithubRoute
   DashboardGraphRoute: typeof DashboardGraphRoute
+  DashboardSettingsRoute: typeof DashboardSettingsRoute
   DashboardApisApiIdRoute: typeof DashboardApisApiIdRoute
   DashboardIncidentsIncidentIdRoute: typeof DashboardIncidentsIncidentIdRoute
   DashboardApisIndexRoute: typeof DashboardApisIndexRoute
@@ -299,7 +339,9 @@ const DashboardRouteChildren: DashboardRouteChildren = {
   DashboardCopilotRoute: DashboardCopilotRoute,
   DashboardDashboardRoute: DashboardDashboardRoute,
   DashboardDriftRoute: DashboardDriftRoute,
+  DashboardGithubRoute: DashboardGithubRoute,
   DashboardGraphRoute: DashboardGraphRoute,
+  DashboardSettingsRoute: DashboardSettingsRoute,
   DashboardApisApiIdRoute: DashboardApisApiIdRoute,
   DashboardIncidentsIncidentIdRoute: DashboardIncidentsIncidentIdRoute,
   DashboardApisIndexRoute: DashboardApisIndexRoute,
