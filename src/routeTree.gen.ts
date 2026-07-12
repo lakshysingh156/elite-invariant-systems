@@ -13,6 +13,7 @@ import { Route as SignupRouteImport } from './routes/signup'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as DashboardRouteImport } from './routes/_dashboard'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as DashboardGraphRouteImport } from './routes/_dashboard.graph'
 import { Route as DashboardDriftRouteImport } from './routes/_dashboard.drift'
 import { Route as DashboardDashboardRouteImport } from './routes/_dashboard.dashboard'
 import { Route as DashboardContractRouteImport } from './routes/_dashboard.contract'
@@ -39,6 +40,11 @@ const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
+} as any)
+const DashboardGraphRoute = DashboardGraphRouteImport.update({
+  id: '/graph',
+  path: '/graph',
+  getParentRoute: () => DashboardRoute,
 } as any)
 const DashboardDriftRoute = DashboardDriftRouteImport.update({
   id: '/drift',
@@ -84,6 +90,7 @@ export interface FileRoutesByFullPath {
   '/contract': typeof DashboardContractRoute
   '/dashboard': typeof DashboardDashboardRoute
   '/drift': typeof DashboardDriftRoute
+  '/graph': typeof DashboardGraphRoute
   '/apis/$apiId': typeof DashboardApisApiIdRoute
   '/incidents/$incidentId': typeof DashboardIncidentsIncidentIdRoute
   '/apis/': typeof DashboardApisIndexRoute
@@ -96,6 +103,7 @@ export interface FileRoutesByTo {
   '/contract': typeof DashboardContractRoute
   '/dashboard': typeof DashboardDashboardRoute
   '/drift': typeof DashboardDriftRoute
+  '/graph': typeof DashboardGraphRoute
   '/apis/$apiId': typeof DashboardApisApiIdRoute
   '/incidents/$incidentId': typeof DashboardIncidentsIncidentIdRoute
   '/apis': typeof DashboardApisIndexRoute
@@ -110,6 +118,7 @@ export interface FileRoutesById {
   '/_dashboard/contract': typeof DashboardContractRoute
   '/_dashboard/dashboard': typeof DashboardDashboardRoute
   '/_dashboard/drift': typeof DashboardDriftRoute
+  '/_dashboard/graph': typeof DashboardGraphRoute
   '/_dashboard/apis/$apiId': typeof DashboardApisApiIdRoute
   '/_dashboard/incidents/$incidentId': typeof DashboardIncidentsIncidentIdRoute
   '/_dashboard/apis/': typeof DashboardApisIndexRoute
@@ -124,6 +133,7 @@ export interface FileRouteTypes {
     | '/contract'
     | '/dashboard'
     | '/drift'
+    | '/graph'
     | '/apis/$apiId'
     | '/incidents/$incidentId'
     | '/apis/'
@@ -136,6 +146,7 @@ export interface FileRouteTypes {
     | '/contract'
     | '/dashboard'
     | '/drift'
+    | '/graph'
     | '/apis/$apiId'
     | '/incidents/$incidentId'
     | '/apis'
@@ -149,6 +160,7 @@ export interface FileRouteTypes {
     | '/_dashboard/contract'
     | '/_dashboard/dashboard'
     | '/_dashboard/drift'
+    | '/_dashboard/graph'
     | '/_dashboard/apis/$apiId'
     | '/_dashboard/incidents/$incidentId'
     | '/_dashboard/apis/'
@@ -191,6 +203,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/_dashboard/graph': {
+      id: '/_dashboard/graph'
+      path: '/graph'
+      fullPath: '/graph'
+      preLoaderRoute: typeof DashboardGraphRouteImport
+      parentRoute: typeof DashboardRoute
     }
     '/_dashboard/drift': {
       id: '/_dashboard/drift'
@@ -248,6 +267,7 @@ interface DashboardRouteChildren {
   DashboardContractRoute: typeof DashboardContractRoute
   DashboardDashboardRoute: typeof DashboardDashboardRoute
   DashboardDriftRoute: typeof DashboardDriftRoute
+  DashboardGraphRoute: typeof DashboardGraphRoute
   DashboardApisApiIdRoute: typeof DashboardApisApiIdRoute
   DashboardIncidentsIncidentIdRoute: typeof DashboardIncidentsIncidentIdRoute
   DashboardApisIndexRoute: typeof DashboardApisIndexRoute
@@ -258,6 +278,7 @@ const DashboardRouteChildren: DashboardRouteChildren = {
   DashboardContractRoute: DashboardContractRoute,
   DashboardDashboardRoute: DashboardDashboardRoute,
   DashboardDriftRoute: DashboardDriftRoute,
+  DashboardGraphRoute: DashboardGraphRoute,
   DashboardApisApiIdRoute: DashboardApisApiIdRoute,
   DashboardIncidentsIncidentIdRoute: DashboardIncidentsIncidentIdRoute,
   DashboardApisIndexRoute: DashboardApisIndexRoute,
