@@ -15,7 +15,7 @@ import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/_dashboard/copilot")({
   head: () => ({ meta: [{ title: "AI Copilot — Invariant." }] }),
-  component: Copilot;
+  component: Copilot,
 });
 
 const citationTone: Record<string, string> = {
