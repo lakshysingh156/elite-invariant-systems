@@ -19,7 +19,9 @@ export function Wordmark({
       <span className="grid h-6 w-6 place-items-center rounded-md bg-signal/15 ring-1 ring-inset ring-signal/30">
         <Activity className="h-3.5 w-3.5 text-signal" strokeWidth={2.5} />
       </span>
-      Invariant<span className="text-signal">.</span>
+      <span>
+        Invariant<span className="text-signal">.</span>
+      </span>
     </span>
   );
 }
