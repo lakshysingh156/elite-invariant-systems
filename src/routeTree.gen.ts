@@ -16,6 +16,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as DashboardGraphRouteImport } from './routes/_dashboard.graph'
 import { Route as DashboardDriftRouteImport } from './routes/_dashboard.drift'
 import { Route as DashboardDashboardRouteImport } from './routes/_dashboard.dashboard'
+import { Route as DashboardCopilotRouteImport } from './routes/_dashboard.copilot'
 import { Route as DashboardContractRouteImport } from './routes/_dashboard.contract'
 import { Route as DashboardIncidentsIndexRouteImport } from './routes/_dashboard.incidents.index'
 import { Route as DashboardApisIndexRouteImport } from './routes/_dashboard.apis.index'
@@ -56,6 +57,11 @@ const DashboardDashboardRoute = DashboardDashboardRouteImport.update({
   path: '/dashboard',
   getParentRoute: () => DashboardRoute,
 } as any)
+const DashboardCopilotRoute = DashboardCopilotRouteImport.update({
+  id: '/copilot',
+  path: '/copilot',
+  getParentRoute: () => DashboardRoute,
+} as any)
 const DashboardContractRoute = DashboardContractRouteImport.update({
   id: '/contract',
   path: '/contract',
@@ -88,6 +94,7 @@ export interface FileRoutesByFullPath {
   '/login': typeof LoginRoute
   '/signup': typeof SignupRoute
   '/contract': typeof DashboardContractRoute
+  '/copilot': typeof DashboardCopilotRoute
   '/dashboard': typeof DashboardDashboardRoute
   '/drift': typeof DashboardDriftRoute
   '/graph': typeof DashboardGraphRoute
@@ -101,6 +108,7 @@ export interface FileRoutesByTo {
   '/login': typeof LoginRoute
   '/signup': typeof SignupRoute
   '/contract': typeof DashboardContractRoute
+  '/copilot': typeof DashboardCopilotRoute
   '/dashboard': typeof DashboardDashboardRoute
   '/drift': typeof DashboardDriftRoute
   '/graph': typeof DashboardGraphRoute
@@ -116,6 +124,7 @@ export interface FileRoutesById {
   '/login': typeof LoginRoute
   '/signup': typeof SignupRoute
   '/_dashboard/contract': typeof DashboardContractRoute
+  '/_dashboard/copilot': typeof DashboardCopilotRoute
   '/_dashboard/dashboard': typeof DashboardDashboardRoute
   '/_dashboard/drift': typeof DashboardDriftRoute
   '/_dashboard/graph': typeof DashboardGraphRoute
@@ -131,6 +140,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/signup'
     | '/contract'
+    | '/copilot'
     | '/dashboard'
     | '/drift'
     | '/graph'
@@ -144,6 +154,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/signup'
     | '/contract'
+    | '/copilot'
     | '/dashboard'
     | '/drift'
     | '/graph'
@@ -158,6 +169,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/signup'
     | '/_dashboard/contract'
+    | '/_dashboard/copilot'
     | '/_dashboard/dashboard'
     | '/_dashboard/drift'
     | '/_dashboard/graph'
@@ -225,6 +237,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardDashboardRouteImport
       parentRoute: typeof DashboardRoute
     }
+    '/_dashboard/copilot': {
+      id: '/_dashboard/copilot'
+      path: '/copilot'
+      fullPath: '/copilot'
+      preLoaderRoute: typeof DashboardCopilotRouteImport
+      parentRoute: typeof DashboardRoute
+    }
     '/_dashboard/contract': {
       id: '/_dashboard/contract'
       path: '/contract'
@@ -265,6 +284,7 @@ declare module '@tanstack/react-router' {
 
 interface DashboardRouteChildren {
   DashboardContractRoute: typeof DashboardContractRoute
+  DashboardCopilotRoute: typeof DashboardCopilotRoute
   DashboardDashboardRoute: typeof DashboardDashboardRoute
   DashboardDriftRoute: typeof DashboardDriftRoute
   DashboardGraphRoute: typeof DashboardGraphRoute
@@ -276,6 +296,7 @@ interface DashboardRouteChildren {
 
 const DashboardRouteChildren: DashboardRouteChildren = {
   DashboardContractRoute: DashboardContractRoute,
+  DashboardCopilotRoute: DashboardCopilotRoute,
   DashboardDashboardRoute: DashboardDashboardRoute,
   DashboardDriftRoute: DashboardDriftRoute,
   DashboardGraphRoute: DashboardGraphRoute,
