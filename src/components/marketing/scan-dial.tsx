@@ -82,20 +82,21 @@ function Dial() {
         </svg>
       </div>
 
-      {/* sweeping radar beam — a trailing arc confined to the ring band */}
+      {/* sweeping radar beam — a soft trailing glow confined to the ring band */}
       <motion.div
         className="absolute inset-0 rounded-full"
         animate={{ rotate: 360 }}
         transition={{ duration: 5.5, ease: "linear", repeat: Infinity }}
         style={{
           background:
-            "conic-gradient(from 0deg, transparent 0deg, transparent 288deg, color-mix(in oklab, var(--signal) 22%, transparent) 344deg, color-mix(in oklab, var(--signal) 60%, transparent) 360deg)",
+            "conic-gradient(from 0deg, transparent 0deg, transparent 320deg, color-mix(in oklab, var(--signal) 10%, transparent) 350deg, color-mix(in oklab, var(--signal) 26%, transparent) 360deg)",
           WebkitMaskImage:
-            "radial-gradient(circle, transparent 30%, #000 34%, #000 92%, transparent 95%)",
+            "radial-gradient(circle, transparent 44%, #000 50%, #000 90%, transparent 96%)",
           maskImage:
-            "radial-gradient(circle, transparent 30%, #000 34%, #000 92%, transparent 95%)",
+            "radial-gradient(circle, transparent 44%, #000 50%, #000 90%, transparent 96%)",
         }}
       />
+
 
 
       {/* live core */}
