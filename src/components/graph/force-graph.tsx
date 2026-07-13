@@ -5,6 +5,8 @@ import {
   forceManyBody,
   forceCenter,
   forceCollide,
+  forceX,
+  forceY,
   type Simulation,
 } from "d3-force";
 import type { GraphNode, GraphEdge } from "@/types";
