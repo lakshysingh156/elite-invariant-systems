@@ -215,11 +215,13 @@ export function TopologyField({ className }: { className?: string }) {
         ctx.fillStyle = "rgba(14,15,17,0.9)";
         ctx.fill();
 
-        // label
-        ctx.font = "500 9.5px ui-monospace, 'JetBrains Mono', monospace";
-        ctx.fillStyle = `rgba(200,205,215,0.55)`;
-        ctx.textAlign = "center";
-        ctx.fillText(n.label, x, y + n.r + 13);
+        // label — suppressed in the central text column so the headline stays clean
+        if (n.nx < 0.3 || n.nx > 0.72) {
+          ctx.font = "500 9.5px ui-monospace, 'JetBrains Mono', monospace";
+          ctx.fillStyle = `rgba(200,205,215,0.5)`;
+          ctx.textAlign = "center";
+          ctx.fillText(n.label, x, y + n.r + 13);
+        }
       }
 
       raf = requestAnimationFrame(draw);
