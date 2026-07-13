@@ -8,12 +8,20 @@ import { fadeUp as fade } from "@/lib/motion";
 
 export function Hero() {
   return (
-    <section className="relative overflow-hidden pt-36 pb-24 sm:pt-44 sm:pb-32">
+    <section className="relative overflow-hidden pt-36 pb-28 sm:pt-44 sm:pb-36">
       {/* live topology backdrop */}
       <div className="pointer-events-none absolute inset-0">
-        <TopologyField className="h-full w-full opacity-70" />
-        <div className="absolute inset-0 grid-backdrop opacity-40" />
-        <div className="absolute inset-0 bg-gradient-to-b from-background/40 via-background/10 to-background" />
+        <TopologyField className="h-full w-full opacity-90" />
+        <div className="absolute inset-0 grid-backdrop opacity-30" />
+        {/* signal eclipse glow behind headline */}
+        <div
+          className="absolute left-1/2 top-[38%] h-[520px] w-[520px] -translate-x-1/2 -translate-y-1/2 rounded-full"
+          style={{
+            background:
+              "radial-gradient(circle, color-mix(in oklab, var(--signal) 14%, transparent), transparent 62%)",
+          }}
+        />
+        <div className="absolute inset-0 bg-gradient-to-b from-background/50 via-background/20 to-background" />
         <div className="absolute inset-x-0 top-0 h-40 bg-gradient-to-b from-background to-transparent" />
       </div>
 
@@ -27,11 +35,11 @@ export function Hero() {
           custom={1}
           initial="hidden"
           animate="show"
-          className="mt-6 text-balance text-5xl font-bold leading-[1.02] tracking-[-0.03em] text-foreground sm:text-6xl md:text-7xl"
+          className="mt-6 text-balance text-5xl font-bold leading-[0.98] tracking-[-0.035em] text-foreground sm:text-6xl md:text-7xl"
         >
           Your APIs evolve.
           <br />
-          <span className="text-muted-foreground">Invariant makes sure</span>
+          <span className="text-foreground-dim">Invariant makes sure</span>
           <br />
           they don&apos;t break.
         </motion.h1>
@@ -57,7 +65,7 @@ export function Hero() {
         >
           <Link
             to="/signup"
-            className="group inline-flex items-center gap-2 rounded-full bg-foreground px-5 py-2.5 text-sm font-medium text-background transition-transform hover:scale-[1.03] active:scale-95"
+            className="group inline-flex items-center gap-2 rounded-full bg-signal px-5 py-2.5 text-sm font-semibold text-signal-foreground transition-transform hover:scale-[1.03] active:scale-95 signal-glow"
           >
             Get started
             <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
