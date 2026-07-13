@@ -103,12 +103,12 @@ export function ForceGraph({
         "link",
         forceLink(simLinks)
           .id((d: any) => d.id)
-          .distance((l: any) => 70 + (4 - l.weight) * 12)
-          .strength(0.5),
+          .distance((l: any) => 120 + (4 - l.weight) * 22)
+          .strength(0.35),
       )
-      .force("charge", forceManyBody().strength(-260))
-      .force("collide", forceCollide(30))
-      .alphaDecay(0.02);
+      .force("charge", forceManyBody().strength(-720))
+      .force("collide", forceCollide(46))
+      .alphaDecay(0.018);
     simRef.current = sim;
 
     const draw = () => {
