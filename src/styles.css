@@ -84,6 +84,8 @@
   /* Dark-first. These are the canonical values (no light theme in V1). */
   --background: oklch(0.16 0.006 260);
   --foreground: oklch(0.97 0.004 260);
+  /* readable dimmed foreground for secondary headline lines / body */
+  --foreground-dim: oklch(0.78 0.008 260);
 
   --surface: oklch(0.185 0.006 260);
   --surface-raised: oklch(0.215 0.007 260);
