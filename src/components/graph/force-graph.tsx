@@ -100,7 +100,9 @@ export function ForceGraph({
       canvas.height = h * dpr;
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       sim.force("center", forceCenter(w / 2, h / 2));
-      sim.alpha(0.4).restart();
+      (sim.force("x") as any)?.x(w / 2);
+      (sim.force("y") as any)?.y(h / 2);
+      sim.alpha(0.5).restart();
     };
 
     const sim = forceSimulation(simNodes)
@@ -108,13 +110,16 @@ export function ForceGraph({
         "link",
         forceLink(simLinks)
           .id((d: any) => d.id)
-          .distance((l: any) => 120 + (4 - l.weight) * 22)
-          .strength(0.35),
+          .distance((l: any) => 110 + (4 - l.weight) * 20)
+          .strength(0.4),
       )
-      .force("charge", forceManyBody().strength(-720))
+      .force("charge", forceManyBody().strength(-540))
       .force("collide", forceCollide(46))
+      .force("x", forceX(400).strength(0.09))
+      .force("y", forceY(300).strength(0.09))
       .alphaDecay(0.018);
     simRef.current = sim;
+
 
     const draw = () => {
       const st = stateRef.current;
