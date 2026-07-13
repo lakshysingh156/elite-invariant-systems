@@ -5,6 +5,8 @@ import {
   forceManyBody,
   forceCenter,
   forceCollide,
+  forceX,
+  forceY,
   type Simulation,
 } from "d3-force";
 import type { GraphNode, GraphEdge } from "@/types";
@@ -66,13 +68,16 @@ export function ForceGraph({
     const ctx = canvas.getContext("2d")!;
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-    const simNodes: SimNode[] = nodes.map((n) => ({
-      ...n,
-      x: Math.random() * 400,
-      y: Math.random() * 300,
-      vx: 0,
-      vy: 0,
-    }));
+    const simNodes: SimNode[] = nodes.map((n, i) => {
+      const a = (i / nodes.length) * Math.PI * 2;
+      return {
+        ...n,
+        x: 400 + Math.cos(a) * 220,
+        y: 300 + Math.sin(a) * 180,
+        vx: 0,
+        vy: 0,
+      };
+    });
     const byId = new Map(simNodes.map((n) => [n.id, n]));
     const simLinks: SimLink[] = edges
       .map((e) => ({
@@ -95,7 +100,9 @@ export function ForceGraph({
       canvas.height = h * dpr;
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       sim.force("center", forceCenter(w / 2, h / 2));
-      sim.alpha(0.4).restart();
+      (sim.force("x") as any)?.x(w / 2);
+      (sim.force("y") as any)?.y(h / 2);
+      sim.alpha(0.5).restart();
     };
 
     const sim = forceSimulation(simNodes)
@@ -103,13 +110,16 @@ export function ForceGraph({
         "link",
         forceLink(simLinks)
           .id((d: any) => d.id)
-          .distance((l: any) => 70 + (4 - l.weight) * 12)
-          .strength(0.5),
+          .distance((l: any) => 110 + (4 - l.weight) * 20)
+          .strength(0.4),
       )
-      .force("charge", forceManyBody().strength(-260))
-      .force("collide", forceCollide(30))
-      .alphaDecay(0.02);
+      .force("charge", forceManyBody().strength(-540))
+      .force("collide", forceCollide(46))
+      .force("x", forceX(400).strength(0.09))
+      .force("y", forceY(300).strength(0.09))
+      .alphaDecay(0.018);
     simRef.current = sim;
+
 
     const draw = () => {
       const st = stateRef.current;

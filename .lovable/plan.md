@@ -1,156 +1,60 @@
-# Invariant. — Full Front-End Foundation
+# Invariant. — Elite Polish Pass + Cinematic Motion (whole-app sweep)
 
-Build the complete product surface with mock data only (no backend). Two zones: an elite marketing site and a production-grade dashboard shell. Target quality: Linear / Stripe / Sentry / Vercel / Datadog / Warp — "people are surprised a student built this."
+Goal: close the gap to Linear / Warp / Sentry / Cinetica quality. Fix what reads as "AI-built" (weak hero visual, washed-out text, loose dead space, half-empty dashboard screens) AND add two signature cinematic moments inspired by the references: a **cinematic intro reveal** and a **rotating scan-dial visual**. Density target ~4/5.
 
-## Stack (adapted to this project)
+Frontend/presentation + motion only — no backend, no new routes, no data-model changes. All animation respects `prefers-reduced-motion`. R3F/canvas stays only where it carries product meaning; performance kept high.
 
-- **TanStack Start + React 19 + Vite** (the supported stack — replaces the spec's Next.js 15; same capabilities: file routing, SSR, code-splitting).
-- **TypeScript**, **Tailwind CSS v4** (tokens in `src/styles.css`), **shadcn/ui**.
-- **Motion (Framer Motion for React)** for component/scroll motion; **GSAP** only for scroll-timeline storytelling; **React Three Fiber** for the one hero-grade dependency-graph visual. Every animation communicates a product concept — no decorative 3D.
-- Mock data lives in `src/data/*` typed against `src/types/*` (mirrors the spec's entities: apis, versions, endpoints, changes, drift_events, incidents, graph nodes/edges).
+---
 
-## Design system (committed, not generic)
+## A. NEW — Cinematic intro reveal (from the video)
+A one-time landing intro (session-scoped; skippable; reduced-motion jumps straight to hero):
+1. Black screen → the Invariant mark fades/scales in center.
+2. A glowing **"reliability eclipse" ring** forms behind it — a circular arc bloom in **signal-green** (not orange), representing the continuous watch loop. Subtle rotation + bloom.
+3. The hero headline resolves with a **light-sweep flare** passing across the letters, then the ring settles up behind the hero and the nav + content fade in.
+- Built with Motion (+ a CSS/canvas glow); no heavy video. Sits above the hero, auto-dismisses (~1.8–2.4s), and won't replay within a session.
 
-Infra-company aesthetic. Explicitly avoiding: gradient blobs, blanket glassmorphism, neon cyberpunk, fake dashboards, generic hero.
+## B. NEW — Rotating scan-dial section (from Cinetica)
+A dedicated band between sections that turns Cinetica's rotating segmented wheel into a **product-meaningful "always scanning" motif**:
+- A radial ring of segmented tick marks slowly rotating (like a radar/scanner sweep), with a live core in the center (a small animated topology / pulse) framed by technical corner brackets and mono labels (e.g. `CONTINUOUS DIFF · RUNTIME DRIFT · BLAST RADIUS`).
+- A rotating sweep highlight passes the ticks; ticks near the sweep light up in status colors. Bold condensed section label alongside (Cinetica-style typographic weight, in Inter tight display).
+- Placed as an "Always watching" band (near How-it-works). Canvas/SVG + Motion, reduced-motion = static composed state.
 
-- **Color**: near-black canvas (`#08090A` base, `#0E0F11`/`#141517` raised surfaces), off-white primary text, layered muted grays, hairline borders (`rgba(255,255,255,0.06-0.1)`). Restrained **signal-green** accent used sparingly for primary action/live state. Semantic status system (color + always a text label): green=stable/resolved, amber=drifting/risky, red=breaking, violet=analyzing/in-progress.
-- **Type**: Inter (UI/headings, tight tracking on display sizes) + JetBrains Mono (all data, status, code, timestamps, logs) — loaded via `<link>` in `__root.tsx`.
-- **Grid/space**: 8px base (4px in dense tables). Sharp-ish radii, subtle depth via borders + soft shadows, not glass.
-- All values are semantic tokens in `src/styles.css` `@theme` — no hardcoded colors in components.
-- Reusable primitives in `src/components/ui-kit/`: StatusBadge, DataTable (sortable/filterable, monospace numeric cols), TerminalLog/Timeline, ChatBubble+CitationChip, KpiCard, SeverityPill, GraphCanvas wrapper, GlowButton.
+## C. Design-system tightening (`src/styles.css`)
+- **Contrast fix:** raise muted body/second-headline grays (add readable `--foreground-dim`) so the hero's second line stops looking broken.
+- **Depth system:** elevation shadow + top-edge highlight utilities so cards read raised, not flat outlines.
+- **Signal glow** utility for hero ring, dial sweep, and primary CTAs (reserve signal-green for live/primary only).
+- **Grain + vignette** overlay so large dark areas feel designed, not empty.
+- Tighter display-type tracking tokens for headline sizes.
 
-## Routes
+## D. Landing page — the "wow" pass
+1. **Signature hero visual:** rebuild `topology-field.tsx` into a real animated dependency topology — labeled nodes, animated edges with traveling request packets, periodic **blast-radius pulse**, health-colored nodes, mouse parallax. Combined with the intro ring, this is the memorable centerpiece.
+2. **Hero copy/layout:** fix low-contrast line, tighten tracking, mono eyebrow with live dot, refined CTA pair with signal glow.
+3. **Kill dead space:** consistent section rhythm, eyebrow labels + hairline dividers → composed bands (Stripe-style), not floating blocks.
+4. **Chaos section:** real terminal panels with window chrome, scan-line reveal on scroll, severity coloring, bold 65 min → 0 min delta.
+5. **Feature grid:** each card gets a real mini-visual (diff, sparkline, graph node, PR comment) + restrained hover elevation.
+6. **How-it-works, architecture panel, graph teaser, pricing, footer:** consistent motion, syntax-colored code, one emphasized tier, "all systems operational" footer dot.
 
-**Marketing** (`src/routes/`)
+## E. Dashboard shell + every screen — fill and compose
+- **Overview:** larger sparkline KPIs, full-width reliability/activity strip, secondary row so the page composes top-to-bottom.
+- **Reliability Graph (signature #2):** center + spread the force layout to fill the canvas, depth glow by health, edge gradients, animated dependency tracing, node-detail side panel, smooth blast-radius transitions on select.
+- **Incident Center:** Linear/Sentry-grade dense rows (severity rail, assignee avatars, error-rate sparkline, keyboard nav) + right-side stats rail.
+- **Incident detail / Copilot / Contract / Drift / APIs / API detail / GitHub / Settings:** consistent page-fill (two-column where sparse), custom empty + skeleton loading states, contextual header actions, richer microvisuals; Copilot gets a more finished chat surface + streaming-style render.
+- **Tables (`data-table.tsx`):** sticky headers, refined row hover/active, keyboard nav, better empty/loading states.
 
-- `/` — landing. Own `head()` metadata (real title/description/og/twitter). Name rendered exactly as `Invariant.` (with the period).
+## F. Motion & interaction polish
+- Consistent easing via `src/lib/motion.ts`; staggered enters, route transitions, hover microinteractions; all reduced-motion safe; performant (2D canvas/SVG + Motion).
 
-**Auth** (UI-only, mock — no real auth backend)
+## G. QA
+- Re-screenshot landing (incl. intro + dial) + all dashboard screens headless at desktop widths; inspect for dead space / contrast / overflow / jank; iterate until each screen reads elite and fills its canvas. Typecheck clean.
 
-- `/login`, `/signup` — split-screen: form left, live product motif right. Submit just routes to `/dashboard`.
+---
 
-**Dashboard** (`_dashboard` layout route with persistent sidebar + header + Cmd+K palette; mock "signed-in", no gate since no backend)
+## On pushing to GitHub
+I can't run git or connect GitHub from here — that's Lovable's built-in integration, not the agent. To push to `github.com/lakshysingh156/Invariant.`: **+ menu (bottom-left of chat) → GitHub → Connect project → authorize.** It then two-way syncs on every change. Note: Lovable creates/uses its own repo on connect; syncing into that exact pre-existing repo isn't directly supported — easiest is to let it create the repo (or empty the existing one first).
 
-- `/dashboard` — Overview: KPI cards (open incidents, APIs monitored, avg genome score), recent incidents feed, recent changes feed, empty/loading/error states.
-- `/apis` — API Inventory: dense sortable/filterable table, genome-score column, status badges, tag filter.
-- `/apis/$apiId` — API Detail: genome header + trend sparkline, tabs (Endpoints / Versions / Drift Timeline / Dependents), "Upload New Version" affordance.
-- `/contract` — Contract Intelligence / Diff Report: side-by-side version compare, severity-grouped change list, expandable before/after.
-- `/drift` — Drift Reports: timeline of drift events with confidence scores + latency/error baseline charts.
-- `/incidents` — Incident Center: filterable list + detail with live status pipeline, similar-past-incidents panel, "Ask Copilot" shortcut.
-- `/graph` — Reliability Graph: interactive force-directed dependency canvas (R3F/`d3-force`), node detail sidebar, click-to-highlight blast radius.
-- `/copilot` — AI Copilot: chat panel, suggested-question chips, streaming-style answer render, clickable citation chips (mocked responses).
-- `/github` — GitHub Integration: repo selector, permission summary, connection status card, sample PR risk comment.
-- `/settings` — tabbed (Profile / Members / Integrations / API Keys); typed-confirmation for destructive actions.
+---
 
-## Landing page composition (scroll-storytelling)
-
-Keeps the current build's proven skeleton but pushes each section to elite quality:
-
-1. **Nav** — minimal: `Invariant.` wordmark (placeholder logo, to be replaced later — no logo emphasis), Features / How it works / Pricing / Docs, Sign in + Get Started. Removes the "Made with Emergent" badge.
-2. **Hero** — sharp headline, mono eyebrow tag, one primary CTA + one quiet secondary. Mouse-reactive **live API topology** motif (subtle, not a fake dashboard) instead of a flat grid background.
-3. **"One API change. 65 minutes of chaos."** — the without/with comparison, upgraded: scroll-synced reveal, mono incident timeline, real severity coloring.
-4. **Product / "Every layer, continuously watched"** — feature blocks (OpenAPI Diff, Runtime Drift, API Genome, AI Copilot, GitHub PR Bot, Knowledge Memory) with restrained hover microinteractions, real mini-visuals per card (not icon-only).
-5. **How it works** — animated pipeline: collector → analyzer → diff → copilot, revealed on scroll (GSAP timeline).
-6. **Architecture** — `architecture.yml` code panel with syntax coloring + the unified-graph checklist.
-7. **Reliability Graph teaser** — interactive R3F dependency-graph preview (the signature 3D moment).
-8. **Pricing** — Free / Pro / Team tiers from the PDF, clean cards, one emphasized plan.
-9. **Footer** — Product / Company / Legal columns + "all systems operational" status dot.
-
-Responsive across breakpoints; motion respects `prefers-reduced-motion`.
-
-## Build order
-
-1. Design tokens in `styles.css` + fonts in `__root.tsx` + real metadata; install `motion`, `gsap`, `@react-three/fiber`, `three`, `d3-force`.
-2. UI-kit primitives + mock data/types.
-3. Landing page (all 9 sections) — first visible win.
-4. Auth pages.
-5. Dashboard layout shell (sidebar, header, Cmd+K).
-6. Dashboard screens in order: Overview → APIs/Detail → Contract → Drift → Incidents → Graph → Copilot → GitHub → Settings.
-7. Motion/interaction polish pass + reduced-motion + responsive QA.
-
-## Notes / decisions
-
-- Logo is a temporary text wordmark; a proper elite mark comes in a later pass as you said.
-- Backend intentionally deferred: all data mocked, auth is UI-only. When you're ready for real detection/auth/AI, that's a follow-up using Lovable Cloud.
-- R3F is used only for the dependency graph (hero + `/graph`) where it carries product meaning; everything else uses lightweight 2D SVG/canvas + Motion to stay fast.
-
-This is a large multi-part build; I'll implement it in the order above so you see the landing page early, then each dashboard screen lands incrementally.  
-Looks good.
-
-A few final requirements before implementation:
-
-1. The Reliability Graph must be one of the strongest visual experiences in the product.
-
-- Interactive dependency graph
-
-- Blast radius highlighting
-
-- Animated dependency tracing
-
-- Node health indicators
-
-- Smooth transitions
-
-2. Dashboard pages must not feel like templates.
-
-Every page should have:
-
-- unique visual identity
-
-- custom empty states
-
-- custom loading states
-
-- contextual actions
-
-- rich interactions
-
-3. The AI Copilot page should feel like a real investigation workspace.
-
-Include:
-
-- citations
-
-- related incidents
-
-- suggested actions
-
-- timeline references
-
-- investigation history
-
-4. The Incident Center should feel similar to a level of:
-
-- Linear
-
-- Sentry
-
-- Datadog
-
-5. Tables should be elite quality:
-
-- column visibility
-
-- sorting
-
-- filtering
-
-- search
-
-- keyboard navigation
-
-- sticky headers
-
-6. Add a Command Palette (Cmd+K / Ctrl+K) that can navigate to every major route.
-
-7. Add tasteful page transitions and route transitions throughout the dashboard.
-
-8. Do not use generic SaaS illustrations or stock graphics.
-
-Every visual should represent an actual Invariant product concept.
-
-9. Build all screens with production-quality mock data so screenshots already look real.
-
-10. Keep performance high.
-
-Use Three.js only where it adds product value.  
+### Technical notes
+- Files: `src/styles.css`, `src/components/marketing/*` (incl. new `intro-reveal.tsx`, `scan-dial.tsx`), `src/components/dashboard/*`, `src/components/ui-kit/*`, `src/components/graph/force-graph.tsx`, `src/routes/index.tsx`, `src/routes/_dashboard.*`, `src/lib/motion.ts`. Mock data may gain fields for richer visuals; no backend.
+- The reference images/video are inspiration only — not embedded as assets.
+- No new dependencies expected (motion, gsap, d3-force, r3f already installed).
