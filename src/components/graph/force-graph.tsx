@@ -66,13 +66,16 @@ export function ForceGraph({
     const ctx = canvas.getContext("2d")!;
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-    const simNodes: SimNode[] = nodes.map((n) => ({
-      ...n,
-      x: Math.random() * 400,
-      y: Math.random() * 300,
-      vx: 0,
-      vy: 0,
-    }));
+    const simNodes: SimNode[] = nodes.map((n, i) => {
+      const a = (i / nodes.length) * Math.PI * 2;
+      return {
+        ...n,
+        x: 400 + Math.cos(a) * 220,
+        y: 300 + Math.sin(a) * 180,
+        vx: 0,
+        vy: 0,
+      };
+    });
     const byId = new Map(simNodes.map((n) => [n.id, n]));
     const simLinks: SimLink[] = edges
       .map((e) => ({
