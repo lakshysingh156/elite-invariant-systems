@@ -70,12 +70,12 @@ export function Pricing() {
               className={cn(
                 "relative flex flex-col rounded-2xl border p-6",
                 t.emphasized
-                  ? "border-signal/40 bg-surface-raised shadow-[0_0_60px_-20px_var(--signal)]"
+                  ? "border-brand/40 bg-surface-raised shadow-[0_0_60px_-20px_var(--brand)]"
                   : "border-hairline bg-surface/60",
               )}
             >
               {t.emphasized && (
-                <span className="absolute right-5 top-5 rounded-full bg-signal/15 px-2.5 py-0.5 font-mono text-[10px] uppercase tracking-wider text-signal ring-1 ring-inset ring-signal/30">
+                <span className="absolute right-5 top-5 rounded-full bg-brand/15 px-2.5 py-0.5 font-mono text-[10px] uppercase tracking-wider text-brand ring-1 ring-inset ring-brand/30">
                   Popular
                 </span>
               )}
@@ -99,7 +99,7 @@ export function Pricing() {
                     <Check
                       className={cn(
                         "h-4 w-4 shrink-0",
-                        t.emphasized ? "text-signal" : "text-stable",
+                        t.emphasized ? "text-brand" : "text-stable",
                       )}
                       strokeWidth={2.5}
                     />
@@ -112,7 +112,7 @@ export function Pricing() {
                 className={cn(
                   "mt-7 inline-flex items-center justify-center rounded-full px-4 py-2.5 text-sm font-medium transition-transform hover:scale-[1.02] active:scale-95",
                   t.emphasized
-                    ? "bg-signal text-signal-foreground"
+                    ? "bg-brand text-brand-foreground brand-glow"
                     : "border border-hairline bg-secondary text-foreground hover:bg-accent",
                 )}
               >
