@@ -118,9 +118,14 @@
   --input: oklch(1 0 0 / 12%);
   --ring: oklch(0.72 0.15 155);
 
-  /* signal-green accent (restrained) */
+  /* signal-green accent (reserved for live status) */
   --signal: oklch(0.78 0.16 156);
   --signal-foreground: oklch(0.16 0.02 160);
+
+  /* brand blue — used for wordmark dot, primary CTAs, emphasized pricing */
+  --brand: oklch(0.68 0.19 250);
+  --brand-foreground: oklch(0.98 0.01 250);
+  --brand-soft: oklch(0.76 0.15 245);
 
   /* status system */
   --stable: oklch(0.76 0.15 158);
