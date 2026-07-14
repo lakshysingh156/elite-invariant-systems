@@ -274,12 +274,20 @@
   }
 }
 
-/* signal glow used for hero ring / primary CTA / dial sweep */
+/* signal glow used for live status pings */
 @utility signal-glow {
   box-shadow:
     0 0 0 1px color-mix(in oklab, var(--signal) 40%, transparent),
     0 0 24px -4px color-mix(in oklab, var(--signal) 45%, transparent),
     0 0 60px -12px color-mix(in oklab, var(--signal) 30%, transparent);
+}
+
+/* brand blue glow — hero CTA, wordmark dot, emphasized tier */
+@utility brand-glow {
+  box-shadow:
+    0 0 0 1px color-mix(in oklab, var(--brand) 45%, transparent),
+    0 0 28px -4px color-mix(in oklab, var(--brand) 55%, transparent),
+    0 0 70px -14px color-mix(in oklab, var(--brand) 40%, transparent);
 }
 
 /* subtle noise grain so large dark areas feel designed */
