@@ -131,7 +131,7 @@ export function IntroReveal() {
                 className="text-2xl font-semibold tracking-tight"
               >
                 <span className="text-sweep">Invariant</span>
-                <span className="text-signal">.</span>
+                <span className="text-brand">.</span>
               </motion.span>
 
               <motion.span

@@ -81,7 +81,7 @@ function Overview() {
         actions={
           <Link
             to="/apis"
-            className="inline-flex items-center gap-1.5 rounded-lg bg-signal px-3 py-2 text-sm font-medium text-signal-foreground transition-transform hover:scale-[1.02]"
+            className="inline-flex items-center gap-1.5 rounded-lg bg-brand px-3 py-2 text-sm font-medium text-brand-foreground transition-transform hover:scale-[1.02] brand-glow"
           >
             Register API
           </Link>

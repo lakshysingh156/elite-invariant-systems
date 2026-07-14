@@ -10,6 +10,7 @@ import {
   Github,
   Settings,
   ChevronsUpDown,
+  ArrowLeft,
 } from "lucide-react";
 import {
   Sidebar,
@@ -67,13 +68,20 @@ export function AppSidebar() {
   return (
     <Sidebar collapsible="icon" className="border-hairline">
       <SidebarHeader className="border-b border-hairline">
-        <Link to="/dashboard" className="flex items-center gap-2 px-1 py-1.5">
+        <Link
+          to="/"
+          className="flex items-center gap-2 px-1 py-1.5 group/logo"
+          title="Back to home"
+        >
           {collapsed ? (
-            <span className="grid h-7 w-7 shrink-0 place-items-center rounded-md bg-signal/15 ring-1 ring-inset ring-signal/30">
-              <Activity className="h-4 w-4 text-signal" strokeWidth={2.5} />
+            <span className="grid h-7 w-7 shrink-0 place-items-center rounded-md bg-brand/15 ring-1 ring-inset ring-brand/30">
+              <Activity className="h-4 w-4 text-brand" strokeWidth={2.5} />
             </span>
           ) : (
-            <Wordmark />
+            <>
+              <Wordmark />
+              <ArrowLeft className="ml-auto h-3.5 w-3.5 text-muted-foreground/40 transition-colors group-hover/logo:text-foreground" />
+            </>
           )}
         </Link>
       </SidebarHeader>

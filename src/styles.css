@@ -56,6 +56,9 @@
   --color-analyzing-foreground: var(--analyzing-foreground);
   --color-signal: var(--signal);
   --color-signal-foreground: var(--signal-foreground);
+  --color-brand: var(--brand);
+  --color-brand-foreground: var(--brand-foreground);
+  --color-brand-soft: var(--brand-soft);
 
   --color-chart-1: var(--chart-1);
   --color-chart-2: var(--chart-2);
@@ -115,9 +118,14 @@
   --input: oklch(1 0 0 / 12%);
   --ring: oklch(0.72 0.15 155);
 
-  /* signal-green accent (restrained) */
+  /* signal-green accent (reserved for live status) */
   --signal: oklch(0.78 0.16 156);
   --signal-foreground: oklch(0.16 0.02 160);
+
+  /* brand blue — used for wordmark dot, primary CTAs, emphasized pricing */
+  --brand: oklch(0.68 0.19 250);
+  --brand-foreground: oklch(0.98 0.01 250);
+  --brand-soft: oklch(0.76 0.15 245);
 
   /* status system */
   --stable: oklch(0.76 0.15 158);
@@ -266,12 +274,20 @@
   }
 }
 
-/* signal glow used for hero ring / primary CTA / dial sweep */
+/* signal glow used for live status pings */
 @utility signal-glow {
   box-shadow:
     0 0 0 1px color-mix(in oklab, var(--signal) 40%, transparent),
     0 0 24px -4px color-mix(in oklab, var(--signal) 45%, transparent),
     0 0 60px -12px color-mix(in oklab, var(--signal) 30%, transparent);
+}
+
+/* brand blue glow — hero CTA, wordmark dot, emphasized tier */
+@utility brand-glow {
+  box-shadow:
+    0 0 0 1px color-mix(in oklab, var(--brand) 45%, transparent),
+    0 0 28px -4px color-mix(in oklab, var(--brand) 55%, transparent),
+    0 0 70px -14px color-mix(in oklab, var(--brand) 40%, transparent);
 }
 
 /* subtle noise grain so large dark areas feel designed */
