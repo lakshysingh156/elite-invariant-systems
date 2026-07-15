@@ -55,8 +55,6 @@ integration layer.
 ### Reliability graph — animated dependency topology
 <img src="public/screenshots/graph.png" alt="Reliability graph" width="100%" />
 
-### Pricing
-<img src="public/screenshots/pricing.png" alt="Pricing" width="100%" />
 
 ## Stack
 
@@ -122,5 +120,5 @@ src/
 ---
 
 <div align="center">
-Built by <a href="https://github.com/lakshysingh156">@lakshysingh156</a> — no template kit, no boilerplate cheating.
+Built by <a href="https://github.com/lakshysingh156">@lakshysingh156</a> — no template kit, no boilerplate.
 </div>
