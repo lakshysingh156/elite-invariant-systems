@@ -181,7 +181,7 @@ function IncidentDetail() {
                   Recent activity
                 </div>
                 <div className="p-4">
-                  {incident.timeline.slice(0, 4).map((ev, i) => (
+                  {incident.timeline.slice(0, 4).map((ev: (typeof incident.timeline)[number], i: number) => (
                     <motion.div
                       key={i}
                       initial={{ opacity: 0, x: -6 }}
@@ -224,7 +224,7 @@ function IncidentDetail() {
 
         {tab === "timeline" && (
           <div className="rounded-xl border border-hairline bg-surface/60 p-5 elevate">
-            {incident.timeline.map((ev, i) => (
+            {incident.timeline.map((ev: (typeof incident.timeline)[number], i: number) => (
               <div key={i} className="relative flex gap-4 pb-5 last:pb-0">
                 <div className="flex flex-col items-center">
                   <StatusBadge status={ev.kind} label="" className="!px-1.5" />
