@@ -1,18 +1,16 @@
 import { createFileRoute, Outlet } from "@tanstack/react-router";
 import { AnimatePresence, motion } from "motion/react";
 import { useRouterState } from "@tanstack/react-router";
-import { Search, Bell } from "lucide-react";
 import {
   SidebarInset,
   SidebarProvider,
-  SidebarTrigger,
 } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/dashboard/app-sidebar";
 import {
   CommandPalette,
   useCommandPalette,
 } from "@/components/dashboard/command-palette";
-import { StatusBadge } from "@/components/ui-kit/status-badge";
+import { TopBar } from "@/components/dashboard/top-bar";
 
 export const Route = createFileRoute("/_dashboard")({
   head: () => ({
@@ -30,27 +28,7 @@ function DashboardLayout() {
       <div className="flex min-h-screen w-full bg-background">
         <AppSidebar />
         <SidebarInset className="min-w-0 bg-background">
-          <header className="sticky top-0 z-30 flex h-14 items-center gap-3 border-b border-hairline bg-background/80 px-4 backdrop-blur-xl">
-            <SidebarTrigger className="text-muted-foreground" />
-            <div className="h-5 w-px bg-hairline" />
-            <button
-              onClick={() => setOpen(true)}
-              className="group flex items-center gap-2 rounded-lg border border-hairline bg-surface/60 px-3 py-1.5 text-sm text-muted-foreground transition-colors hover:bg-surface"
-            >
-              <Search className="h-3.5 w-3.5" />
-              <span className="hidden sm:inline">Search or jump to…</span>
-              <kbd className="ml-4 hidden rounded border border-hairline bg-background px-1.5 py-0.5 font-mono text-[10px] sm:inline">
-                ⌘K
-              </kbd>
-            </button>
-            <div className="ml-auto flex items-center gap-3">
-              <StatusBadge status="stable" label="8 APIs" pulse />
-              <button className="relative grid h-8 w-8 place-items-center rounded-lg text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground">
-                <Bell className="h-4 w-4" />
-                <span className="absolute right-1.5 top-1.5 h-1.5 w-1.5 rounded-full bg-breaking" />
-              </button>
-            </div>
-          </header>
+          <TopBar onOpenPalette={() => setOpen(true)} />
 
           <AnimatePresence mode="wait">
             <motion.div
