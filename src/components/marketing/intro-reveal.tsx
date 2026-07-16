@@ -61,9 +61,10 @@ export function IntroReveal() {
             >
               <defs>
                 <linearGradient id="introRing" x1="0" y1="0" x2="1" y2="1">
-                  <stop offset="0%" stopColor="var(--signal)" stopOpacity="0.1" />
-                  <stop offset="55%" stopColor="var(--signal)" stopOpacity="1" />
-                  <stop offset="100%" stopColor="var(--signal)" stopOpacity="0.2" />
+                  <stop offset="0%" stopColor="var(--brand)" stopOpacity="0.1" />
+                  <stop offset="55%" stopColor="var(--brand)" stopOpacity="1" />
+                  <stop offset="100%" stopColor="var(--brand)" stopOpacity="0.2" />
+
                 </linearGradient>
                 <filter id="introGlow">
                   <feGaussianBlur stdDeviation="6" result="b" />
