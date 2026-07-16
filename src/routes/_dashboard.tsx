@@ -12,7 +12,15 @@ import {
 } from "@/components/dashboard/command-palette";
 import { TopBar } from "@/components/dashboard/top-bar";
 
+import { redirect } from "@tanstack/react-router";
+import { supabase } from "@/integrations/supabase/client";
+
 export const Route = createFileRoute("/_dashboard")({
+  ssr: false,
+  beforeLoad: async () => {
+    const { data } = await supabase.auth.getSession();
+    if (!data.session) throw redirect({ to: "/auth" });
+  },
   head: () => ({
     meta: [{ title: "Dashboard — Invariant." }],
   }),
