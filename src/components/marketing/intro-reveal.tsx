@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
-import { Activity } from "lucide-react";
+import { BrandMark } from "@/components/brand/wordmark";
+
 
 const SESSION_KEY = "invariant.intro.seen";
 
