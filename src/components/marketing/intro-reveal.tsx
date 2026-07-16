@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
-import { Activity } from "lucide-react";
+import { BrandMark } from "@/components/brand/wordmark";
+
 
 const SESSION_KEY = "invariant.intro.seen";
 
@@ -60,9 +61,10 @@ export function IntroReveal() {
             >
               <defs>
                 <linearGradient id="introRing" x1="0" y1="0" x2="1" y2="1">
-                  <stop offset="0%" stopColor="var(--signal)" stopOpacity="0.1" />
-                  <stop offset="55%" stopColor="var(--signal)" stopOpacity="1" />
-                  <stop offset="100%" stopColor="var(--signal)" stopOpacity="0.2" />
+                  <stop offset="0%" stopColor="var(--brand)" stopOpacity="0.1" />
+                  <stop offset="55%" stopColor="var(--brand)" stopOpacity="1" />
+                  <stop offset="100%" stopColor="var(--brand)" stopOpacity="0.2" />
+
                 </linearGradient>
                 <filter id="introGlow">
                   <feGaussianBlur stdDeviation="6" result="b" />
@@ -107,7 +109,7 @@ export function IntroReveal() {
               className="absolute h-40 w-40 rounded-full"
               style={{
                 background:
-                  "radial-gradient(circle, color-mix(in oklab, var(--signal) 40%, transparent), transparent 70%)",
+                  "radial-gradient(circle, color-mix(in oklab, var(--brand) 40%, transparent), transparent 70%)",
               }}
               initial={{ opacity: 0, scale: 0.5 }}
               animate={{ opacity: [0, 0.9, 0.5], scale: [0.5, 1.1, 1] }}
@@ -116,13 +118,14 @@ export function IntroReveal() {
 
             <div className="relative flex flex-col items-center gap-5">
               <motion.span
-                className="grid h-14 w-14 place-items-center rounded-2xl bg-signal/15 ring-1 ring-inset ring-signal/40 signal-glow"
+                className="grid h-14 w-14 place-items-center rounded-2xl bg-brand/15 ring-1 ring-inset ring-brand/40 brand-glow"
                 initial={{ opacity: 0, scale: 0.6 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
               >
-                <Activity className="h-6 w-6 text-signal" strokeWidth={2.5} />
+                <BrandMark size={28} className="text-brand" strokeWidth={2.4} />
               </motion.span>
+
 
               <motion.span
                 initial={{ opacity: 0, y: 8 }}
