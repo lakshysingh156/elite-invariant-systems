@@ -124,7 +124,14 @@ export const seedDemoWorkspace = createServerFn({ method: "POST" })
       .limit(1);
     if (existing && existing.length) return { skipped: true, message: "Demo data already present." };
 
-    const apis = [
+    const apis: Array<{
+      name: string;
+      base_url: string;
+      kind: "internal" | "third-party";
+      owning_team: string;
+      tags: string[];
+      specs: any[];
+    }> = [
       { name: "Stripe Payments", base_url: "https://api.stripe.com/v1", kind: "third-party", owning_team: "Payments", tags: ["payments", "vendor", "critical"], specs: [specV1, specV2] },
       { name: "Twilio Messaging", base_url: "https://api.twilio.com", kind: "third-party", owning_team: "Notifications", tags: ["comms", "vendor"], specs: [twilioSpec] },
       { name: "Orders API", base_url: "https://orders.internal.acme", kind: "internal", owning_team: "Commerce", tags: ["internal", "core"], specs: [internalSpec] },
