@@ -1,153 +1,94 @@
 import { createFileRoute } from "@tanstack/react-router";
-import {
-  Area,
-  AreaChart,
-  Line,
-  ResponsiveContainer,
-  Tooltip,
-  XAxis,
-  YAxis,
-} from "recharts";
-import { PageHeader, PageBody, Panel } from "@/components/dashboard/page-shell";
-import { StatusBadge } from "@/components/ui-kit/status-badge";
-import { driftEvents, latencySeries } from "@/data/drift";
+import { useQuery } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
+import { Loader2, Activity } from "lucide-react";
+import { PageHeader, PageBody, Panel, EmptyState } from "@/components/dashboard/page-shell";
+import { getDashboardOverview } from "@/lib/dashboard.functions";
 import { timeAgo } from "@/lib/format";
+import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/_dashboard/drift")({
   head: () => ({ meta: [{ title: "Drift Reports — Invariant." }] }),
   component: Drift,
 });
 
-const typeLabel: Record<string, string> = {
-  schema: "Schema",
-  latency: "Latency",
-  "error-rate": "Error rate",
-  auth: "Auth",
+const sevChip: Record<string, string> = {
+  breaking: "text-breaking bg-breaking/10 border-breaking/40",
+  risky: "text-drift bg-drift/10 border-drift/40",
+  safe: "text-stable bg-stable/10 border-stable/40",
 };
 
 function Drift() {
+  const overviewFn = useServerFn(getDashboardOverview);
+  const { data, isLoading } = useQuery({
+    queryKey: ["dashboard-overview"],
+    queryFn: () => overviewFn(),
+  });
+
+  if (isLoading || !data) {
+    return (
+      <PageBody>
+        <div className="flex items-center justify-center py-24 text-muted-foreground">
+          <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Loading drift signals…
+        </div>
+      </PageBody>
+    );
+  }
+
+  const { stats, recentChanges } = data;
+
   return (
     <>
-      <PageHeader
-        title="Drift Reports"
-        description="Live behaviour diverging from the 7-day rolling baseline."
-      />
-      <PageBody className="space-y-6">
-        <div className="grid gap-6 lg:grid-cols-[1.5fr_1fr]">
-          <Panel title="Search Service · GET /search — p95 latency">
-            <div className="h-64 p-4">
-              <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={latencySeries} margin={{ left: -12, right: 8, top: 8 }}>
-                  <defs>
-                    <linearGradient id="obs" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stopColor="var(--drift)" stopOpacity={0.35} />
-                      <stop offset="100%" stopColor="var(--drift)" stopOpacity={0} />
-                    </linearGradient>
-                  </defs>
-                  <XAxis
-                    dataKey="t"
-                    tick={{ fontSize: 10, fontFamily: "JetBrains Mono", fill: "var(--muted-foreground)" }}
-                    interval={11}
-                    stroke="var(--hairline)"
-                  />
-                  <YAxis
-                    tick={{ fontSize: 10, fontFamily: "JetBrains Mono", fill: "var(--muted-foreground)" }}
-                    stroke="var(--hairline)"
-                    width={44}
-                  />
-                  <Tooltip
-                    contentStyle={{
-                      background: "var(--popover)",
-                      border: "1px solid var(--border)",
-                      borderRadius: 8,
-                      fontSize: 12,
-                      fontFamily: "JetBrains Mono",
-                    }}
-                    labelStyle={{ color: "var(--muted-foreground)" }}
-                  />
-                  <Area
-                    type="monotone"
-                    dataKey="observed"
-                    stroke="var(--drift)"
-                    strokeWidth={2}
-                    fill="url(#obs)"
-                    name="observed"
-                  />
-                  <Line
-                    type="monotone"
-                    dataKey="baseline"
-                    stroke="var(--muted-foreground)"
-                    strokeDasharray="4 4"
-                    strokeWidth={1.5}
-                    dot={false}
-                    name="baseline"
-                  />
-                  <Line
-                    type="monotone"
-                    dataKey="upper"
-                    stroke="var(--breaking)"
-                    strokeDasharray="2 4"
-                    strokeWidth={1}
-                    dot={false}
-                    name="+3σ threshold"
-                  />
-                </AreaChart>
-              </ResponsiveContainer>
-            </div>
-          </Panel>
-
-          <div className="grid grid-cols-2 gap-4 lg:grid-cols-1">
-            {[
-              { l: "Detected (24h)", v: "5", t: "text-analyzing" },
-              { l: "Above threshold", v: "3", t: "text-breaking" },
-              { l: "Peak deviation", v: "+4.4σ", t: "text-drift" },
-              { l: "Mean confidence", v: "84%", t: "text-foreground" },
-            ].map((s) => (
-              <div
-                key={s.l}
-                className="rounded-xl border border-hairline bg-surface/60 p-4"
-              >
-                <div className="text-sm text-muted-foreground">{s.l}</div>
-                <div className={`mt-2 font-mono text-2xl font-semibold ${s.t}`}>
-                  {s.v}
-                </div>
-              </div>
-            ))}
-          </div>
+      <PageHeader title="Drift Reports" description="Contract deviations across every API your workspace tracks." />
+      <PageBody className="space-y-5">
+        <div className="grid grid-cols-2 gap-px overflow-hidden rounded-xl border border-hairline bg-hairline sm:grid-cols-4">
+          <Tile label="Changes (30d)" value={stats.changes30d} />
+          <Tile label="Breaking" value={stats.breaking30d} tone="text-breaking" />
+          <Tile label="Risky" value={stats.risky30d} tone="text-drift" />
+          <Tile label="Safe" value={Math.max(0, stats.changes30d - stats.breaking30d - stats.risky30d)} tone="text-stable" />
         </div>
 
-        <Panel title="Drift events">
-          <div className="divide-y divide-hairline">
-            {driftEvents.map((d) => (
-              <div
-                key={d.id}
-                className="grid grid-cols-[auto_1fr_auto] items-center gap-4 px-4 py-3.5"
-              >
-                <StatusBadge status={d.status} pulse={d.status !== "stable"} />
-                <div className="min-w-0">
-                  <div className="flex items-center gap-2">
-                    <span className="font-mono text-sm">{d.endpoint}</span>
-                    <span className="rounded bg-secondary px-1.5 py-0.5 font-mono text-[10px] uppercase text-muted-foreground">
-                      {typeLabel[d.type]}
-                    </span>
+        <Panel title="Recent drift events">
+          {recentChanges.length === 0 ? (
+            <EmptyState
+              icon={Activity}
+              title="No drift detected"
+              description="Every API you're tracking is aligned with its baseline. Upload a new spec version to detect drift."
+            />
+          ) : (
+            <div className="divide-y divide-hairline">
+              {recentChanges.map((c: any) => (
+                <div key={c.id} className="grid grid-cols-[auto_1fr_auto] items-center gap-4 px-4 py-3">
+                  <span className={cn("rounded-md border px-2 py-1 font-mono text-[10px] uppercase", sevChip[c.severity])}>
+                    {c.severity}
+                  </span>
+                  <div className="min-w-0">
+                    <div className="flex items-center gap-2">
+                      <span className="font-mono text-sm">{c.method ?? ""} {c.endpoint_path ?? c.target}</span>
+                      <span className="rounded bg-secondary px-1.5 py-0.5 font-mono text-[10px] uppercase text-muted-foreground">
+                        {c.kind}
+                      </span>
+                    </div>
+                    <div className="mt-0.5 truncate text-xs text-muted-foreground">
+                      {c.api_name} · {c.summary}
+                    </div>
                   </div>
-                  <div className="mt-0.5 truncate font-mono text-xs text-muted-foreground">
-                    {d.apiName} · {d.baseline} → {d.observed} · {d.deviation}
-                  </div>
+                  <div className="font-mono text-xs text-muted-foreground">{timeAgo(c.created_at)}</div>
                 </div>
-                <div className="text-right">
-                  <div className="font-mono text-sm text-foreground">
-                    {Math.round(d.confidence * 100)}%
-                  </div>
-                  <div className="font-mono text-xs text-muted-foreground">
-                    {timeAgo(d.detectedAt)}
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
         </Panel>
       </PageBody>
     </>
+  );
+}
+
+function Tile({ label, value, tone }: { label: string; value: number; tone?: string }) {
+  return (
+    <div className="bg-surface/60 px-4 py-3">
+      <div className="font-mono text-[10px] uppercase tracking-wider text-muted-foreground">{label}</div>
+      <div className={cn("mt-1 font-mono text-xl font-semibold tabular-nums", tone)}>{value}</div>
+    </div>
   );
 }
