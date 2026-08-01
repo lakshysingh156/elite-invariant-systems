@@ -22,8 +22,10 @@ import {
   Home,
   Search,
 } from "lucide-react";
-import { incidents } from "@/data/incidents";
-import { apis } from "@/data/apis";
+import { useQuery } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
+import { listApis } from "@/lib/apis.functions";
+import { listIncidents } from "@/lib/incidents.functions";
 
 const routes = [
   { label: "Dashboard", to: "/dashboard", icon: LayoutDashboard },
