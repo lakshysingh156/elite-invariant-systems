@@ -1,35 +1,80 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
-import { Copy, Plus, Trash2, ShieldAlert } from "lucide-react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
+import { Loader2, ShieldAlert, Check } from "lucide-react";
+import { toast } from "sonner";
 import { PageHeader, PageBody, Panel } from "@/components/dashboard/page-shell";
-import { StatusBadge } from "@/components/ui-kit/status-badge";
+import { getWorkspaceSettings, renameWorkspace } from "@/lib/workspace.functions";
+import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/_dashboard/settings")({
-  head: () => ({ meta: [{ title: "Settings — Invariant." }] }),
+  head: () => ({
+    meta: [
+      { title: "Workspace Settings — Invariant." },
+      {
+        name: "description",
+        content: "Manage your Invariant workspace, members, and integrations.",
+      },
+    ],
+  }),
   component: Settings,
 });
 
-const tabs = ["Profile", "Members", "Integrations", "API Keys"] as const;
+const tabs = ["Workspace", "Members", "Integrations"] as const;
 type Tab = (typeof tabs)[number];
 
-const members = [
-  { name: "Maya Chen", email: "maya@acme.dev", role: "Owner", status: "stable" as const },
-  { name: "Diego Ruiz", email: "diego@acme.dev", role: "Admin", status: "stable" as const },
-  { name: "Priya Nair", email: "priya@acme.dev", role: "Member", status: "stable" as const },
-  { name: "Sam Okafor", email: "sam@acme.dev", role: "Member", status: "analyzing" as const },
-];
-
-const keys = [
-  { id: "k1", name: "Production SDK", prefix: "inv_live_a1b2••••", created: "Apr 2, 2026" },
-  { id: "k2", name: "CI pipeline", prefix: "inv_ci_9x8y••••", created: "May 18, 2026" },
-];
-
 function Settings() {
-  const [tab, setTab] = useState<Tab>("Profile");
+  const [tab, setTab] = useState<Tab>("Workspace");
+  const qc = useQueryClient();
+  const fn = useServerFn(getWorkspaceSettings);
+  const renameFn = useServerFn(renameWorkspace);
+
+  const { data, isLoading } = useQuery({
+    queryKey: ["workspace-settings"],
+    queryFn: () => fn(),
+  });
+  const [name, setName] = useState<string | null>(null);
+
+  const rename = useMutation({
+    mutationFn: (n: string) => renameFn({ data: { name: n } }),
+    onSuccess: () => {
+      toast.success("Workspace renamed");
+      qc.invalidateQueries({ queryKey: ["workspace-settings"] });
+    },
+    onError: (e) => toast.error(e instanceof Error ? e.message : "Rename failed"),
+  });
+
+  if (isLoading || !data) {
+    return (
+      <PageBody>
+        <div className="flex items-center justify-center py-24 text-muted-foreground">
+          <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Loading workspace…
+        </div>
+      </PageBody>
+    );
+  }
+
+  const orgName = name ?? data.org?.name ?? "";
+
   return (
     <>
-      <PageHeader title="Settings" description="Manage your organization and workspace." />
+      <PageHeader
+        title="Settings"
+        description="Manage your organization and workspace."
+        actions={
+          <button
+            onClick={async () => {
+              await supabase.auth.signOut();
+              window.location.href = "/";
+            }}
+            className="rounded-lg border border-hairline bg-surface px-3 py-2 text-xs hover:bg-surface-raised"
+          >
+            Sign out
+          </button>
+        }
+      />
       <PageBody className="space-y-6">
         <div className="flex gap-1 border-b border-hairline">
           {tabs.map((t) => (
@@ -49,103 +94,148 @@ function Settings() {
           ))}
         </div>
 
-        {tab === "Profile" && (
-          <Panel title="Organization profile" className="max-w-2xl">
-            <div className="space-y-4 p-5">
-              {[
-                { l: "Organization name", v: "Acme Inc." },
-                { l: "Slug", v: "acme" },
-                { l: "Primary team", v: "Platform" },
-              ].map((f) => (
-                <label key={f.l} className="block">
-                  <span className="mb-1.5 block text-xs font-medium text-muted-foreground">
-                    {f.l}
-                  </span>
+        {tab === "Workspace" && (
+          <div className="grid gap-4 lg:grid-cols-2">
+            <Panel title="Organization" className="p-0">
+              <div className="space-y-4 p-4">
+                <div>
+                  <label className="mb-1.5 block font-mono text-[11px] uppercase tracking-wider text-muted-foreground">
+                    Name
+                  </label>
                   <input
-                    defaultValue={f.v}
-                    className="w-full rounded-lg border border-input bg-background px-3.5 py-2.5 text-sm outline-none focus:border-signal/40 focus:ring-2 focus:ring-signal/10"
+                    value={orgName}
+                    onChange={(e) => setName(e.target.value)}
+                    className="w-full rounded-lg border border-hairline bg-background px-3 py-2 text-sm outline-none focus:border-signal/50"
                   />
-                </label>
-              ))}
-              <button className="rounded-lg bg-signal px-4 py-2 text-sm font-medium text-signal-foreground">
-                Save changes
-              </button>
-            </div>
-          </Panel>
+                </div>
+                <div className="font-mono text-xs text-muted-foreground">
+                  slug · {data.org?.slug} · your role · {data.myRole}
+                </div>
+                <button
+                  disabled={rename.isPending || !orgName.trim()}
+                  onClick={() => rename.mutate(orgName.trim())}
+                  className="inline-flex items-center gap-2 rounded-lg bg-signal px-3 py-2 text-xs font-medium text-background disabled:opacity-50"
+                >
+                  {rename.isPending ? (
+                    <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                  ) : (
+                    <Check className="h-3.5 w-3.5" />
+                  )}
+                  Save changes
+                </button>
+              </div>
+            </Panel>
+
+            <Panel title="Account" className="p-0">
+              <div className="space-y-3 p-4 text-sm">
+                <Row label="Signed in as" value={data.me.email ?? data.me.id} />
+                <Row label="APIs tracked" value={String(data.stats.apiCount)} />
+                <Row label="Dependencies mapped" value={String(data.stats.depCount)} />
+              </div>
+            </Panel>
+          </div>
         )}
 
         {tab === "Members" && (
-          <Panel title="Team members">
+          <Panel title={`Members · ${data.members.length}`}>
             <div className="divide-y divide-hairline">
-              {members.map((m) => (
-                <div key={m.email} className="flex items-center gap-3 px-4 py-3.5">
-                  <span className="grid h-8 w-8 place-items-center rounded-full bg-analyzing/15 font-mono text-xs text-analyzing ring-1 ring-inset ring-analyzing/25">
-                    {m.name.split(" ").map((n) => n[0]).join("")}
-                  </span>
-                  <div className="min-w-0">
-                    <div className="text-sm font-medium">{m.name}</div>
-                    <div className="font-mono text-xs text-muted-foreground">{m.email}</div>
+              {data.members.map((m: any) => (
+                <div key={m.id} className="flex items-center gap-3 px-4 py-3">
+                  <div className="flex h-8 w-8 items-center justify-center rounded-full border border-hairline bg-surface font-mono text-[11px]">
+                    {(m.isMe ? (data.me.email ?? "me") : m.user_id).slice(0, 2).toUpperCase()}
                   </div>
-                  <span className="ml-auto rounded-md bg-secondary px-2 py-1 font-mono text-xs text-muted-foreground">
+                  <div className="min-w-0 flex-1">
+                    <div className="truncate text-sm">
+                      {m.isMe ? (data.me.email ?? "You") : m.user_id}
+                      {m.isMe && (
+                        <span className="ml-2 font-mono text-[10px] uppercase text-muted-foreground">
+                          you
+                        </span>
+                      )}
+                    </div>
+                    <div className="font-mono text-[11px] text-muted-foreground">
+                      joined {new Date(m.created_at).toLocaleDateString()}
+                    </div>
+                  </div>
+                  <span className="rounded-md border border-hairline bg-secondary px-2 py-0.5 font-mono text-[11px] uppercase">
                     {m.role}
                   </span>
-                  <StatusBadge status={m.status} label={m.status === "stable" ? "active" : "pending"} />
                 </div>
               ))}
+            </div>
+            <div className="flex items-center gap-2 border-t border-hairline px-4 py-3 text-xs text-muted-foreground">
+              <ShieldAlert className="h-3.5 w-3.5" />
+              Invites are issued by workspace owners — email invitations arrive in a later release.
             </div>
           </Panel>
         )}
 
         {tab === "Integrations" && (
           <div className="grid gap-4 sm:grid-cols-2">
-            {["Slack", "Email", "GitHub", "Webhook"].map((s) => (
-              <Panel key={s} className="flex items-center justify-between p-4">
-                <div>
-                  <div className="text-sm font-medium">{s}</div>
-                  <div className="font-mono text-xs text-muted-foreground">
-                    Alert routing
-                  </div>
-                </div>
-                <StatusBadge status="stable" label="connected" />
-              </Panel>
-            ))}
+            <IntegrationCard
+              name="OpenAPI upload"
+              detail="Upload specs manually from the API detail page."
+              status="Active"
+            />
+            <IntegrationCard
+              name="GitHub PR checks"
+              detail="Contract enforcement on every pull request."
+              status="Not connected"
+            />
+            <IntegrationCard
+              name="AI Copilot"
+              detail="Grounded reasoning over your workspace data."
+              status="Active"
+            />
+            <IntegrationCard
+              name="Runtime monitors"
+              detail="Scheduled drift probes against live endpoints."
+              status="Not connected"
+            />
           </div>
-        )}
-
-        {tab === "API Keys" && (
-          <Panel
-            title="API keys"
-            action={
-              <button className="inline-flex items-center gap-1.5 rounded-lg bg-signal px-2.5 py-1.5 text-xs font-medium text-signal-foreground">
-                <Plus className="h-3.5 w-3.5" /> New key
-              </button>
-            }
-          >
-            <div className="divide-y divide-hairline">
-              {keys.map((k) => (
-                <div key={k.id} className="flex items-center gap-3 px-4 py-3.5">
-                  <div className="min-w-0">
-                    <div className="text-sm font-medium">{k.name}</div>
-                    <div className="font-mono text-xs text-muted-foreground">
-                      {k.prefix} · created {k.created}
-                    </div>
-                  </div>
-                  <button className="ml-auto grid h-8 w-8 place-items-center rounded-md text-muted-foreground hover:bg-secondary">
-                    <Copy className="h-4 w-4" />
-                  </button>
-                  <button className="grid h-8 w-8 place-items-center rounded-md text-breaking hover:bg-breaking/10">
-                    <Trash2 className="h-4 w-4" />
-                  </button>
-                </div>
-              ))}
-            </div>
-            <div className="flex items-start gap-2 border-t border-hairline bg-breaking/5 px-4 py-3 text-xs text-muted-foreground">
-              <ShieldAlert className="h-4 w-4 shrink-0 text-breaking" />
-              Revoking a key requires typed confirmation and is irreversible.
-            </div>
-          </Panel>
         )}
       </PageBody>
     </>
+  );
+}
+
+function Row({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="flex items-center justify-between gap-3">
+      <span className="text-muted-foreground">{label}</span>
+      <span className="truncate font-mono text-xs">{value}</span>
+    </div>
+  );
+}
+
+function IntegrationCard({
+  name,
+  detail,
+  status,
+}: {
+  name: string;
+  detail: string;
+  status: string;
+}) {
+  const active = status === "Active";
+  return (
+    <Panel className="p-4">
+      <div className="flex items-start justify-between gap-3">
+        <div>
+          <div className="text-sm font-medium">{name}</div>
+          <div className="mt-1 text-xs text-muted-foreground">{detail}</div>
+        </div>
+        <span
+          className={cn(
+            "shrink-0 rounded-md border px-2 py-0.5 font-mono text-[10px] uppercase",
+            active
+              ? "border-stable/40 bg-stable/10 text-stable"
+              : "border-hairline bg-secondary text-muted-foreground",
+          )}
+        >
+          {status}
+        </span>
+      </div>
+    </Panel>
   );
 }
