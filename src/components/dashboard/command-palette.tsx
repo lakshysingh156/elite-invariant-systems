@@ -22,8 +22,10 @@ import {
   Home,
   Search,
 } from "lucide-react";
-import { incidents } from "@/data/incidents";
-import { apis } from "@/data/apis";
+import { useQuery } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
+import { listApis } from "@/lib/apis.functions";
+import { listIncidents } from "@/lib/incidents.functions";
 
 const routes = [
   { label: "Dashboard", to: "/dashboard", icon: LayoutDashboard },
@@ -61,6 +63,20 @@ export function CommandPalette({
   setOpen: (v: boolean) => void;
 }) {
   const navigate = useNavigate();
+  const apisFn = useServerFn(listApis);
+  const incidentsFn = useServerFn(listIncidents);
+
+  const { data: apis = [] } = useQuery({
+    queryKey: ["palette-apis"],
+    queryFn: () => apisFn(),
+    enabled: open,
+  });
+  const { data: incidents = [] } = useQuery({
+    queryKey: ["palette-incidents"],
+    queryFn: () => incidentsFn(),
+    enabled: open,
+  });
+
   const go = (to: string, params?: Record<string, string>) => {
     setOpen(false);
     navigate({ to, params } as never);
@@ -85,7 +101,7 @@ export function CommandPalette({
         </CommandGroup>
         <CommandSeparator />
         <CommandGroup heading="APIs">
-          {apis.slice(0, 6).map((a) => (
+          {apis.slice(0, 6).map((a: any) => (
             <CommandItem
               key={a.id}
               value={`api ${a.name}`}
@@ -101,7 +117,7 @@ export function CommandPalette({
         </CommandGroup>
         <CommandSeparator />
         <CommandGroup heading="Incidents">
-          {incidents.slice(0, 5).map((i) => (
+          {incidents.slice(0, 5).map((i: any) => (
             <CommandItem
               key={i.id}
               value={`incident ${i.code} ${i.title}`}
