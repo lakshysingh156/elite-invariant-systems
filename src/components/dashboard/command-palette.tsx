@@ -101,7 +101,7 @@ export function CommandPalette({
         </CommandGroup>
         <CommandSeparator />
         <CommandGroup heading="APIs">
-          {apis.slice(0, 6).map((a) => (
+          {apis.slice(0, 6).map((a: any) => (
             <CommandItem
               key={a.id}
               value={`api ${a.name}`}
@@ -117,7 +117,7 @@ export function CommandPalette({
         </CommandGroup>
         <CommandSeparator />
         <CommandGroup heading="Incidents">
-          {incidents.slice(0, 5).map((i) => (
+          {incidents.slice(0, 5).map((i: any) => (
             <CommandItem
               key={i.id}
               value={`incident ${i.code} ${i.title}`}
