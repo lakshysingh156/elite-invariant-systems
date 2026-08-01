@@ -63,6 +63,20 @@ export function CommandPalette({
   setOpen: (v: boolean) => void;
 }) {
   const navigate = useNavigate();
+  const apisFn = useServerFn(listApis);
+  const incidentsFn = useServerFn(listIncidents);
+
+  const { data: apis = [] } = useQuery({
+    queryKey: ["palette-apis"],
+    queryFn: () => apisFn(),
+    enabled: open,
+  });
+  const { data: incidents = [] } = useQuery({
+    queryKey: ["palette-incidents"],
+    queryFn: () => incidentsFn(),
+    enabled: open,
+  });
+
   const go = (to: string, params?: Record<string, string>) => {
     setOpen(false);
     navigate({ to, params } as never);
