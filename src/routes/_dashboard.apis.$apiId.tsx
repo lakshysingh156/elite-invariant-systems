@@ -96,12 +96,20 @@ function ApiDetail() {
         title={api.name}
         description={api.base_url}
         actions={
-          <Link
-            to="/apis"
-            className="inline-flex items-center gap-1.5 rounded-lg border border-hairline bg-surface px-3 py-2 text-sm text-muted-foreground hover:text-foreground"
-          >
-            <ArrowLeft className="h-4 w-4" /> Inventory
-          </Link>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setUploadOpen(true)}
+              className="inline-flex items-center gap-1.5 rounded-lg border border-hairline bg-surface px-3 py-2 text-sm text-muted-foreground hover:text-foreground"
+            >
+              <Upload className="h-4 w-4" /> Upload new spec version
+            </button>
+            <Link
+              to="/apis"
+              className="inline-flex items-center gap-1.5 rounded-lg border border-hairline bg-surface px-3 py-2 text-sm text-muted-foreground hover:text-foreground"
+            >
+              <ArrowLeft className="h-4 w-4" /> Inventory
+            </Link>
+          </div>
         }
       />
       <PageBody className="space-y-6">
