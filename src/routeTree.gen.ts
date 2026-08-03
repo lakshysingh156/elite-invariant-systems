@@ -9,8 +9,6 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as SignupRouteImport } from './routes/signup'
-import { Route as LoginRouteImport } from './routes/login'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as DashboardRouteImport } from './routes/_dashboard'
 import { Route as IndexRouteImport } from './routes/index'
@@ -26,16 +24,6 @@ import { Route as DashboardApisIndexRouteImport } from './routes/_dashboard.apis
 import { Route as DashboardIncidentsIncidentIdRouteImport } from './routes/_dashboard.incidents.$incidentId'
 import { Route as DashboardApisApiIdRouteImport } from './routes/_dashboard.apis.$apiId'
 
-const SignupRoute = SignupRouteImport.update({
-  id: '/signup',
-  path: '/signup',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const LoginRoute = LoginRouteImport.update({
-  id: '/login',
-  path: '/login',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
   path: '/auth',
@@ -110,8 +98,6 @@ const DashboardApisApiIdRoute = DashboardApisApiIdRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
-  '/login': typeof LoginRoute
-  '/signup': typeof SignupRoute
   '/contract': typeof DashboardContractRoute
   '/copilot': typeof DashboardCopilotRoute
   '/dashboard': typeof DashboardDashboardRoute
@@ -127,8 +113,6 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
-  '/login': typeof LoginRoute
-  '/signup': typeof SignupRoute
   '/contract': typeof DashboardContractRoute
   '/copilot': typeof DashboardCopilotRoute
   '/dashboard': typeof DashboardDashboardRoute
@@ -146,8 +130,6 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/_dashboard': typeof DashboardRouteWithChildren
   '/auth': typeof AuthRoute
-  '/login': typeof LoginRoute
-  '/signup': typeof SignupRoute
   '/_dashboard/contract': typeof DashboardContractRoute
   '/_dashboard/copilot': typeof DashboardCopilotRoute
   '/_dashboard/dashboard': typeof DashboardDashboardRoute
@@ -165,8 +147,6 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/auth'
-    | '/login'
-    | '/signup'
     | '/contract'
     | '/copilot'
     | '/dashboard'
@@ -182,8 +162,6 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/auth'
-    | '/login'
-    | '/signup'
     | '/contract'
     | '/copilot'
     | '/dashboard'
@@ -200,8 +178,6 @@ export interface FileRouteTypes {
     | '/'
     | '/_dashboard'
     | '/auth'
-    | '/login'
-    | '/signup'
     | '/_dashboard/contract'
     | '/_dashboard/copilot'
     | '/_dashboard/dashboard'
@@ -219,26 +195,10 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   DashboardRoute: typeof DashboardRouteWithChildren
   AuthRoute: typeof AuthRoute
-  LoginRoute: typeof LoginRoute
-  SignupRoute: typeof SignupRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/signup': {
-      id: '/signup'
-      path: '/signup'
-      fullPath: '/signup'
-      preLoaderRoute: typeof SignupRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/login': {
-      id: '/login'
-      path: '/login'
-      fullPath: '/login'
-      preLoaderRoute: typeof LoginRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/auth': {
       id: '/auth'
       path: '/auth'
@@ -376,8 +336,6 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   DashboardRoute: DashboardRouteWithChildren,
   AuthRoute: AuthRoute,
-  LoginRoute: LoginRoute,
-  SignupRoute: SignupRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
