@@ -68,6 +68,7 @@ export const createApi = createServerFn({ method: "POST" })
         base_url: data.baseUrl,
         kind: data.kind,
         owning_team: data.owningTeam ?? null,
+        monitor_interval: data.monitorInterval,
         tags: data.tags,
       })
       .select("id")
