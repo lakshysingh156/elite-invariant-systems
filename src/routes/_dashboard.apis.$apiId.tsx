@@ -49,6 +49,33 @@ function ApiDetail() {
     queryFn: () => detailFn({ data: { apiId } }),
   });
   const [tab, setTab] = useState<Tab>("Endpoints");
+  const qc = useQueryClient();
+  const submitFn = useServerFn(submitSpecVersion);
+  const [uploadOpen, setUploadOpen] = useState(false);
+  const [specText, setSpecText] = useState("");
+  const [versionLabel, setVersionLabel] = useState("");
+
+  const submitMutation = useMutation({
+    mutationFn: () =>
+      submitFn({ data: { apiId, specText, versionLabel: versionLabel || undefined } }),
+    onSuccess: (res: any) => {
+      setUploadOpen(false);
+      setSpecText("");
+      setVersionLabel("");
+      setTab("Contract Changes");
+      toast.success(`Version ${res.versionLabel} analyzed`, {
+        description: `${res.summary.breaking} breaking · ${res.summary.risky} risky · ${res.summary.safe} safe`,
+      });
+      qc.invalidateQueries({ queryKey: ["api-detail", apiId] });
+      qc.invalidateQueries({ queryKey: ["apis"] });
+    },
+    onError: (e: any) => toast.error(e?.message ?? "Failed to analyze spec"),
+  });
+
+  async function onFile(file: File | undefined) {
+    if (!file) return;
+    setSpecText(await file.text());
+  }
 
   if (isLoading) {
     return (
