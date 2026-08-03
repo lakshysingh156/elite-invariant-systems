@@ -1,12 +1,22 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { ArrowLeft, ExternalLink, Loader2 } from "lucide-react";
+import { ArrowLeft, Loader2, Upload } from "lucide-react";
+import { toast } from "sonner";
 import { PageHeader, PageBody, Panel } from "@/components/dashboard/page-shell";
 import { StatusBadge, SeverityPill } from "@/components/ui-kit/status-badge";
 import { GenomeRing } from "@/components/ui-kit/metrics";
-import { getApiDetail } from "@/lib/apis.functions";
+import { getApiDetail, submitSpecVersion } from "@/lib/apis.functions";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
 import { timeAgo, shortDate } from "@/lib/format";
 
@@ -39,6 +49,33 @@ function ApiDetail() {
     queryFn: () => detailFn({ data: { apiId } }),
   });
   const [tab, setTab] = useState<Tab>("Endpoints");
+  const qc = useQueryClient();
+  const submitFn = useServerFn(submitSpecVersion);
+  const [uploadOpen, setUploadOpen] = useState(false);
+  const [specText, setSpecText] = useState("");
+  const [versionLabel, setVersionLabel] = useState("");
+
+  const submitMutation = useMutation({
+    mutationFn: () =>
+      submitFn({ data: { apiId, specText, versionLabel: versionLabel || undefined } }),
+    onSuccess: (res: any) => {
+      setUploadOpen(false);
+      setSpecText("");
+      setVersionLabel("");
+      setTab("Contract Changes");
+      toast.success(`Version ${res.versionLabel} analyzed`, {
+        description: `${res.summary.breaking} breaking · ${res.summary.risky} risky · ${res.summary.safe} safe`,
+      });
+      qc.invalidateQueries({ queryKey: ["api-detail", apiId] });
+      qc.invalidateQueries({ queryKey: ["apis"] });
+    },
+    onError: (e: any) => toast.error(e?.message ?? "Failed to analyze spec"),
+  });
+
+  async function onFile(file: File | undefined) {
+    if (!file) return;
+    setSpecText(await file.text());
+  }
 
   if (isLoading) {
     return (
@@ -59,12 +96,20 @@ function ApiDetail() {
         title={api.name}
         description={api.base_url}
         actions={
-          <Link
-            to="/apis"
-            className="inline-flex items-center gap-1.5 rounded-lg border border-hairline bg-surface px-3 py-2 text-sm text-muted-foreground hover:text-foreground"
-          >
-            <ArrowLeft className="h-4 w-4" /> Inventory
-          </Link>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setUploadOpen(true)}
+              className="inline-flex items-center gap-1.5 rounded-lg border border-hairline bg-surface px-3 py-2 text-sm text-muted-foreground hover:text-foreground"
+            >
+              <Upload className="h-4 w-4" /> Upload new spec version
+            </button>
+            <Link
+              to="/apis"
+              className="inline-flex items-center gap-1.5 rounded-lg border border-hairline bg-surface px-3 py-2 text-sm text-muted-foreground hover:text-foreground"
+            >
+              <ArrowLeft className="h-4 w-4" /> Inventory
+            </Link>
+          </div>
         }
       />
       <PageBody className="space-y-6">
@@ -188,6 +233,60 @@ function ApiDetail() {
           </Panel>
         )}
       </PageBody>
+
+      <Dialog open={uploadOpen} onOpenChange={setUploadOpen}>
+        <DialogContent className="sm:max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Upload new spec version</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="space-y-1.5">
+              <Label htmlFor="version-label">Version label (optional)</Label>
+              <Input
+                id="version-label"
+                placeholder="2026-08-01"
+                value={versionLabel}
+                onChange={(e) => setVersionLabel(e.target.value)}
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="spec-file">Spec file</Label>
+              <Input
+                id="spec-file"
+                type="file"
+                accept=".json,application/json"
+                onChange={(e) => void onFile(e.target.files?.[0])}
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="spec-text">Or paste JSON OpenAPI</Label>
+              <textarea
+                id="spec-text"
+                value={specText}
+                onChange={(e) => setSpecText(e.target.value)}
+                rows={12}
+                spellCheck={false}
+                placeholder='{ "openapi": "3.0.0", "paths": { ... } }'
+                className="w-full rounded-lg border border-hairline bg-surface px-3 py-2 font-mono text-xs outline-none focus:ring-1 focus:ring-brand"
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <button
+              disabled={!specText.trim() || submitMutation.isPending}
+              onClick={() => submitMutation.mutate()}
+              className="inline-flex items-center gap-1.5 rounded-lg bg-brand px-3 py-2 text-sm font-medium text-brand-foreground disabled:opacity-50"
+            >
+              {submitMutation.isPending ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <Upload className="h-4 w-4" />
+              )}
+              Analyze &amp; save version
+            </button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </>
   );
 }
