@@ -299,6 +299,20 @@ function ApiInventory() {
               </div>
             </div>
             <div>
+              <Label>Monitor interval</Label>
+              <select
+                value={form.monitorInterval}
+                onChange={(e) => setForm({ ...form, monitorInterval: e.target.value })}
+                className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+              >
+                {["5m", "15m", "1h", "6h", "24h"].map((i) => (
+                  <option key={i} value={i}>
+                    {i}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div>
               <Label>Tags (comma-separated)</Label>
               <Input value={form.tags} onChange={(e) => setForm({ ...form, tags: e.target.value })} placeholder="payments, vendor, critical" />
             </div>
