@@ -1,12 +1,22 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { ArrowLeft, ExternalLink, Loader2 } from "lucide-react";
+import { ArrowLeft, Loader2, Upload } from "lucide-react";
+import { toast } from "sonner";
 import { PageHeader, PageBody, Panel } from "@/components/dashboard/page-shell";
 import { StatusBadge, SeverityPill } from "@/components/ui-kit/status-badge";
 import { GenomeRing } from "@/components/ui-kit/metrics";
-import { getApiDetail } from "@/lib/apis.functions";
+import { getApiDetail, submitSpecVersion } from "@/lib/apis.functions";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
 import { timeAgo, shortDate } from "@/lib/format";
 
