@@ -233,6 +233,60 @@ function ApiDetail() {
           </Panel>
         )}
       </PageBody>
+
+      <Dialog open={uploadOpen} onOpenChange={setUploadOpen}>
+        <DialogContent className="sm:max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Upload new spec version</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="space-y-1.5">
+              <Label htmlFor="version-label">Version label (optional)</Label>
+              <Input
+                id="version-label"
+                placeholder="2026-08-01"
+                value={versionLabel}
+                onChange={(e) => setVersionLabel(e.target.value)}
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="spec-file">Spec file</Label>
+              <Input
+                id="spec-file"
+                type="file"
+                accept=".json,application/json"
+                onChange={(e) => void onFile(e.target.files?.[0])}
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="spec-text">Or paste JSON OpenAPI</Label>
+              <textarea
+                id="spec-text"
+                value={specText}
+                onChange={(e) => setSpecText(e.target.value)}
+                rows={12}
+                spellCheck={false}
+                placeholder='{ "openapi": "3.0.0", "paths": { ... } }'
+                className="w-full rounded-lg border border-hairline bg-surface px-3 py-2 font-mono text-xs outline-none focus:ring-1 focus:ring-brand"
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <button
+              disabled={!specText.trim() || submitMutation.isPending}
+              onClick={() => submitMutation.mutate()}
+              className="inline-flex items-center gap-1.5 rounded-lg bg-brand px-3 py-2 text-sm font-medium text-brand-foreground disabled:opacity-50"
+            >
+              {submitMutation.isPending ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <Upload className="h-4 w-4" />
+              )}
+              Analyze &amp; save version
+            </button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </>
   );
 }
