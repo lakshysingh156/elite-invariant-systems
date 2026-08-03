@@ -60,6 +60,7 @@ function ApiInventory() {
     baseUrl: "",
     kind: "internal" as "internal" | "third-party",
     owningTeam: "",
+    monitorInterval: "15m",
     tags: "",
   });
 
