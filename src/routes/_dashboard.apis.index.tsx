@@ -60,6 +60,7 @@ function ApiInventory() {
     baseUrl: "",
     kind: "internal" as "internal" | "third-party",
     owningTeam: "",
+    monitorInterval: "15m",
     tags: "",
   });
 
@@ -71,6 +72,7 @@ function ApiInventory() {
           baseUrl: form.baseUrl,
           kind: form.kind,
           owningTeam: form.owningTeam || undefined,
+          monitorInterval: form.monitorInterval as "5m" | "15m" | "1h" | "6h" | "24h",
           tags: form.tags.split(",").map((t) => t.trim()).filter(Boolean),
         },
       });
@@ -79,7 +81,7 @@ function ApiInventory() {
       toast.success("API registered");
       qc.invalidateQueries({ queryKey: ["apis"] });
       setRegisterOpen(false);
-      setForm({ name: "", baseUrl: "", kind: "internal", owningTeam: "", tags: "" });
+      setForm({ name: "", baseUrl: "", kind: "internal", owningTeam: "", monitorInterval: "15m", tags: "" });
       setUploadOpen(res.id);
     },
     onError: (err) => toast.error(err instanceof Error ? err.message : "Failed"),
@@ -295,6 +297,20 @@ function ApiInventory() {
                 <Label>Owning team</Label>
                 <Input value={form.owningTeam} onChange={(e) => setForm({ ...form, owningTeam: e.target.value })} placeholder="Payments" />
               </div>
+            </div>
+            <div>
+              <Label>Monitor interval</Label>
+              <select
+                value={form.monitorInterval}
+                onChange={(e) => setForm({ ...form, monitorInterval: e.target.value })}
+                className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+              >
+                {["5m", "15m", "1h", "6h", "24h"].map((i) => (
+                  <option key={i} value={i}>
+                    {i}
+                  </option>
+                ))}
+              </select>
             </div>
             <div>
               <Label>Tags (comma-separated)</Label>

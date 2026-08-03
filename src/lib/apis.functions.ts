@@ -53,6 +53,7 @@ export const createApi = createServerFn({ method: "POST" })
         baseUrl: z.string().url(),
         kind: z.enum(["internal", "third-party"]).default("internal"),
         owningTeam: z.string().max(80).optional(),
+        monitorInterval: z.enum(["5m", "15m", "1h", "6h", "24h"]).default("15m"),
         tags: z.array(z.string().max(40)).max(20).default([]),
       })
       .parse(raw),
@@ -67,6 +68,7 @@ export const createApi = createServerFn({ method: "POST" })
         base_url: data.baseUrl,
         kind: data.kind,
         owning_team: data.owningTeam ?? null,
+        monitor_interval: data.monitorInterval,
         tags: data.tags,
       })
       .select("id")

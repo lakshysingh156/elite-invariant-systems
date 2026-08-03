@@ -49,7 +49,7 @@ export function MarketingFooter() {
         <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-3 px-6 py-5 text-xs text-muted-foreground sm:flex-row">
           <span className="font-mono">© 2026 Invariant. — v1.0</span>
           <div className="flex items-center gap-4">
-            <Link to="/login" className="hover:text-foreground">
+            <Link to="/auth" className="hover:text-foreground">
               Sign in
             </Link>
             <Link to="/dashboard" className="hover:text-foreground">

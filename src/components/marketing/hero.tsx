@@ -64,7 +64,7 @@ export function Hero() {
           className="mt-9 flex flex-wrap items-center justify-center gap-3"
         >
           <Link
-            to="/signup"
+            to="/auth"
             className="group inline-flex items-center gap-2 rounded-full bg-brand px-5 py-2.5 text-sm font-semibold text-brand-foreground transition-transform hover:scale-[1.03] active:scale-95 brand-glow"
           >
             Get started
