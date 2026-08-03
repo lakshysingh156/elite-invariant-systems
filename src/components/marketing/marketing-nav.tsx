@@ -54,13 +54,13 @@ export function MarketingNav() {
 
         <div className="flex items-center gap-1.5">
           <Link
-            to="/login"
+            to="/auth"
             className="hidden rounded-full px-3.5 py-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground sm:inline-flex"
           >
             Sign in
           </Link>
           <Link
-            to="/signup"
+            to="/auth"
             className="inline-flex items-center rounded-full bg-foreground px-4 py-1.5 text-sm font-medium text-background transition-transform hover:scale-[1.03] active:scale-95"
           >
             Get started
