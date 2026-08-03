@@ -72,6 +72,7 @@ function ApiInventory() {
           baseUrl: form.baseUrl,
           kind: form.kind,
           owningTeam: form.owningTeam || undefined,
+          monitorInterval: form.monitorInterval as "5m" | "15m" | "1h" | "6h" | "24h",
           tags: form.tags.split(",").map((t) => t.trim()).filter(Boolean),
         },
       });
@@ -80,7 +81,7 @@ function ApiInventory() {
       toast.success("API registered");
       qc.invalidateQueries({ queryKey: ["apis"] });
       setRegisterOpen(false);
-      setForm({ name: "", baseUrl: "", kind: "internal", owningTeam: "", tags: "" });
+      setForm({ name: "", baseUrl: "", kind: "internal", owningTeam: "", monitorInterval: "15m", tags: "" });
       setUploadOpen(res.id);
     },
     onError: (err) => toast.error(err instanceof Error ? err.message : "Failed"),
