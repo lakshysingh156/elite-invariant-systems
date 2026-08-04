@@ -18,7 +18,7 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { listApis, createApi, uploadOpenApiVersion } from "@/lib/apis.functions";
+import { listApis, createApi, submitSpecVersion } from "@/lib/apis.functions";
 
 export const Route = createFileRoute("/_dashboard/apis/")({
   head: () => ({ meta: [{ title: "API Inventory — Invariant." }] }),
