@@ -134,127 +134,27 @@ export const submitSpecVersion = createServerFn({ method: "POST" })
       .parse(raw),
   )
   .handler(async ({ context, data }) => {
-    const { diffOpenApiSpecs, summarizeSeverity } = await import("./openapi-diff");
-
-    let spec: any;
-    try {
-      spec = JSON.parse(data.specText);
-    } catch {
-      throw new Error("Unable to parse spec — please paste valid JSON OpenAPI.");
-    }
-    if (!spec || typeof spec !== "object") throw new Error("Spec must be a JSON object.");
-
-    const METHODS = ["get", "post", "put", "patch", "delete", "head", "options"];
-    const flat: Array<{ method: string; path: string; operationId?: string; op: any }> = [];
-    for (const [path, item] of Object.entries((spec.paths ?? {}) as Record<string, any>)) {
-      for (const m of METHODS) {
-        const op = (item as any)?.[m];
-        if (op) flat.push({ method: m.toUpperCase(), path, operationId: op.operationId, op });
-      }
-    }
-
-    const { data: api, error: apiErr } = await context.supabase
-      .from("apis")
-      .select("id, current_version_id")
-      .eq("id", data.apiId)
-      .maybeSingle();
-    if (apiErr) throw new Error(apiErr.message);
-    if (!api) throw new Error("API not found or you don't have access to it.");
-
-    let previousSpec: any = {};
-    let previousVersionId: string | null = null;
-    if (api.current_version_id) {
-      const { data: prev } = await context.supabase
-        .from("api_versions")
-        .select("id, spec")
-        .eq("id", api.current_version_id)
-        .maybeSingle();
-      if (prev) {
-        previousSpec = prev.spec ?? {};
-        previousVersionId = prev.id as string;
-      }
-    }
-
-    const changes = diffOpenApiSpecs(previousSpec, spec);
-    const summary = summarizeSeverity(changes);
-    const total = changes.length;
-    const label = data.versionLabel?.trim() || spec.info?.version || new Date().toISOString().slice(0, 10);
-
-    if (previousVersionId) {
-      await context.supabase.from("api_versions").update({ is_current: false }).eq("id", previousVersionId);
-    }
-
-    const { data: versionRow, error: vErr } = await context.supabase
-      .from("api_versions")
-      .insert({
-        api_id: data.apiId,
-        version: label,
-        spec,
-        source: "upload",
-        endpoint_count: flat.length,
-        change_count: total,
-        breaking_count: summary.breaking,
-        is_current: true,
-      })
-      .select("id")
-      .single();
-    if (vErr) throw new Error(vErr.message);
-    const versionId = versionRow.id as string;
-
-    if (flat.length) {
-      const { error: eErr } = await context.supabase.from("endpoints").insert(
-        flat.map((e) => ({
-          version_id: versionId,
-          api_id: data.apiId,
-          method: e.method,
-          path: e.path,
-          operation_id: e.operationId ?? null,
-          spec: e.op,
-        })),
-      );
-      if (eErr) throw new Error(eErr.message);
-    }
-
-    if (changes.length) {
-      const { error: cErr } = await context.supabase.from("contract_changes").insert(
-        changes.map((c) => ({
-          api_id: data.apiId,
-          from_version_id: previousVersionId,
-          to_version_id: versionId,
-          severity: c.severity,
-          kind: c.kind,
-          endpoint_path: c.endpoint_path,
-          method: c.method,
-          target: c.target,
-          summary: c.summary,
-          before_snippet: c.before_snippet,
-          after_snippet: c.after_snippet,
-        })),
-      );
-      if (cErr) throw new Error(cErr.message);
-    }
-
-    const status: "stable" | "drifting" | "breaking" =
-      summary.breaking > 0 ? "breaking" : summary.risky > 0 ? "drifting" : "stable";
-    const genome = Math.max(0, 100 - summary.breaking * 15 - summary.risky * 5);
-
-    const { error: uErr } = await context.supabase
-      .from("apis")
-      .update({
-        current_version_id: versionId,
-        status,
-        genome,
-        last_checked: new Date().toISOString(),
-      })
-      .eq("id", data.apiId);
-    if (uErr) throw new Error(uErr.message);
-
-    return {
-      versionId,
-      versionLabel: label,
-      endpointCount: flat.length,
-      summary: { ...summary, total },
-      status,
-      genome,
-    };
+    const { applySpecDiff } = await import("./apply-spec-diff.server");
+    return applySpecDiff(context.supabase, data.apiId, data.specText, data.versionLabel, "upload");
   });
+
+/** Update the mutable settings of an API (currently the live spec URL). */
+export const updateApiSettings = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((raw: unknown) =>
+    z
+      .object({
+        apiId: z.string().uuid(),
+        specUrl: z.string().url().max(500).nullable(),
+      })
+      .parse(raw),
+  )
+  .handler(async ({ context, data }) => {
+    const { error } = await context.supabase
+      .from("apis")
+      .update({ spec_url: data.specUrl })
+      .eq("id", data.apiId);
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
+
