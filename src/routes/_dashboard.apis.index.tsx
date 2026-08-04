@@ -45,7 +45,7 @@ function ApiInventory() {
   const qc = useQueryClient();
   const listFn = useServerFn(listApis);
   const createFn = useServerFn(createApi);
-  const uploadFn = useServerFn(uploadOpenApiVersion);
+  const uploadFn = useServerFn(submitSpecVersion);
 
   const { data: apis = [], isLoading } = useQuery({
     queryKey: ["apis"],
