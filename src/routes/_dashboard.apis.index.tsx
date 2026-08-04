@@ -58,6 +58,7 @@ function ApiInventory() {
   const [form, setForm] = useState({
     name: "",
     baseUrl: "",
+    specUrl: "",
     kind: "internal" as "internal" | "third-party",
     owningTeam: "",
     monitorInterval: "15m",
@@ -70,6 +71,7 @@ function ApiInventory() {
         data: {
           name: form.name,
           baseUrl: form.baseUrl,
+          specUrl: form.specUrl.trim() || null,
           kind: form.kind,
           owningTeam: form.owningTeam || undefined,
           monitorInterval: form.monitorInterval as "5m" | "15m" | "1h" | "6h" | "24h",
@@ -81,7 +83,7 @@ function ApiInventory() {
       toast.success("API registered");
       qc.invalidateQueries({ queryKey: ["apis"] });
       setRegisterOpen(false);
-      setForm({ name: "", baseUrl: "", kind: "internal", owningTeam: "", monitorInterval: "15m", tags: "" });
+      setForm({ name: "", baseUrl: "", specUrl: "", kind: "internal", owningTeam: "", monitorInterval: "15m", tags: "" });
       setUploadOpen(res.id);
     },
     onError: (err) => toast.error(err instanceof Error ? err.message : "Failed"),
@@ -280,6 +282,17 @@ function ApiInventory() {
             <div>
               <Label>Base URL</Label>
               <Input value={form.baseUrl} onChange={(e) => setForm({ ...form, baseUrl: e.target.value })} placeholder="https://api.stripe.com/v1" />
+            </div>
+            <div>
+              <Label>Spec URL (optional)</Label>
+              <Input
+                value={form.specUrl}
+                onChange={(e) => setForm({ ...form, specUrl: e.target.value })}
+                placeholder="https://api.stripe.com/openapi.json"
+              />
+              <p className="mt-1 text-xs text-muted-foreground">
+                Where the live OpenAPI JSON is served. Set this and we'll re-check it automatically.
+              </p>
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div>
