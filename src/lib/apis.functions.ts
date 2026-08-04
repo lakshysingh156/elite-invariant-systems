@@ -37,7 +37,7 @@ export const listApis = createServerFn({ method: "GET" })
     const orgId = await currentOrgId(context.supabase, context.userId);
     const { data, error } = await context.supabase
       .from("apis")
-      .select("id, name, base_url, kind, tags, owning_team, monitor_interval, status, genome, current_version_id, last_checked, updated_at")
+      .select("id, name, base_url, spec_url, kind, tags, owning_team, monitor_interval, status, genome, current_version_id, last_checked, updated_at")
       .eq("org_id", orgId)
       .order("updated_at", { ascending: false });
     if (error) throw new Error(error.message);
