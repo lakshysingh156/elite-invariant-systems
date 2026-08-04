@@ -74,6 +74,7 @@ export type Database = {
           name: string
           org_id: string
           owning_team: string | null
+          spec_url: string | null
           status: Database["public"]["Enums"]["api_status"]
           tags: string[]
           updated_at: string
@@ -90,6 +91,7 @@ export type Database = {
           name: string
           org_id: string
           owning_team?: string | null
+          spec_url?: string | null
           status?: Database["public"]["Enums"]["api_status"]
           tags?: string[]
           updated_at?: string
@@ -106,6 +108,7 @@ export type Database = {
           name?: string
           org_id?: string
           owning_team?: string | null
+          spec_url?: string | null
           status?: Database["public"]["Enums"]["api_status"]
           tags?: string[]
           updated_at?: string
