@@ -51,6 +51,7 @@ export const createApi = createServerFn({ method: "POST" })
       .object({
         name: z.string().min(1).max(120),
         baseUrl: z.string().url(),
+        specUrl: z.string().url().max(500).optional().nullable(),
         kind: z.enum(["internal", "third-party"]).default("internal"),
         owningTeam: z.string().max(80).optional(),
         monitorInterval: z.enum(["5m", "15m", "1h", "6h", "24h"]).default("15m"),
@@ -66,6 +67,7 @@ export const createApi = createServerFn({ method: "POST" })
         org_id: orgId,
         name: data.name,
         base_url: data.baseUrl,
+        spec_url: data.specUrl || null,
         kind: data.kind,
         owning_team: data.owningTeam ?? null,
         monitor_interval: data.monitorInterval,
