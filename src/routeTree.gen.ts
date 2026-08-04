@@ -23,6 +23,7 @@ import { Route as DashboardIncidentsIndexRouteImport } from './routes/_dashboard
 import { Route as DashboardApisIndexRouteImport } from './routes/_dashboard.apis.index'
 import { Route as DashboardIncidentsIncidentIdRouteImport } from './routes/_dashboard.incidents.$incidentId'
 import { Route as DashboardApisApiIdRouteImport } from './routes/_dashboard.apis.$apiId'
+import { Route as ApiPublicHooksMonitorApisRouteImport } from './routes/api/public/hooks/monitor-apis'
 
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
@@ -94,6 +95,12 @@ const DashboardApisApiIdRoute = DashboardApisApiIdRouteImport.update({
   path: '/apis/$apiId',
   getParentRoute: () => DashboardRoute,
 } as any)
+const ApiPublicHooksMonitorApisRoute =
+  ApiPublicHooksMonitorApisRouteImport.update({
+    id: '/api/public/hooks/monitor-apis',
+    path: '/api/public/hooks/monitor-apis',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -109,6 +116,7 @@ export interface FileRoutesByFullPath {
   '/incidents/$incidentId': typeof DashboardIncidentsIncidentIdRoute
   '/apis/': typeof DashboardApisIndexRoute
   '/incidents/': typeof DashboardIncidentsIndexRoute
+  '/api/public/hooks/monitor-apis': typeof ApiPublicHooksMonitorApisRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -124,6 +132,7 @@ export interface FileRoutesByTo {
   '/incidents/$incidentId': typeof DashboardIncidentsIncidentIdRoute
   '/apis': typeof DashboardApisIndexRoute
   '/incidents': typeof DashboardIncidentsIndexRoute
+  '/api/public/hooks/monitor-apis': typeof ApiPublicHooksMonitorApisRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -141,6 +150,7 @@ export interface FileRoutesById {
   '/_dashboard/incidents/$incidentId': typeof DashboardIncidentsIncidentIdRoute
   '/_dashboard/apis/': typeof DashboardApisIndexRoute
   '/_dashboard/incidents/': typeof DashboardIncidentsIndexRoute
+  '/api/public/hooks/monitor-apis': typeof ApiPublicHooksMonitorApisRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -158,6 +168,7 @@ export interface FileRouteTypes {
     | '/incidents/$incidentId'
     | '/apis/'
     | '/incidents/'
+    | '/api/public/hooks/monitor-apis'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -173,6 +184,7 @@ export interface FileRouteTypes {
     | '/incidents/$incidentId'
     | '/apis'
     | '/incidents'
+    | '/api/public/hooks/monitor-apis'
   id:
     | '__root__'
     | '/'
@@ -189,12 +201,14 @@ export interface FileRouteTypes {
     | '/_dashboard/incidents/$incidentId'
     | '/_dashboard/apis/'
     | '/_dashboard/incidents/'
+    | '/api/public/hooks/monitor-apis'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   DashboardRoute: typeof DashboardRouteWithChildren
   AuthRoute: typeof AuthRoute
+  ApiPublicHooksMonitorApisRoute: typeof ApiPublicHooksMonitorApisRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -297,6 +311,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardApisApiIdRouteImport
       parentRoute: typeof DashboardRoute
     }
+    '/api/public/hooks/monitor-apis': {
+      id: '/api/public/hooks/monitor-apis'
+      path: '/api/public/hooks/monitor-apis'
+      fullPath: '/api/public/hooks/monitor-apis'
+      preLoaderRoute: typeof ApiPublicHooksMonitorApisRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -336,6 +357,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   DashboardRoute: DashboardRouteWithChildren,
   AuthRoute: AuthRoute,
+  ApiPublicHooksMonitorApisRoute: ApiPublicHooksMonitorApisRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
