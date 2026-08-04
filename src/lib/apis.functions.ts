@@ -37,7 +37,7 @@ export const listApis = createServerFn({ method: "GET" })
     const orgId = await currentOrgId(context.supabase, context.userId);
     const { data, error } = await context.supabase
       .from("apis")
-      .select("id, name, base_url, kind, tags, owning_team, monitor_interval, status, genome, current_version_id, last_checked, updated_at")
+      .select("id, name, base_url, spec_url, kind, tags, owning_team, monitor_interval, status, genome, current_version_id, last_checked, updated_at")
       .eq("org_id", orgId)
       .order("updated_at", { ascending: false });
     if (error) throw new Error(error.message);
@@ -51,6 +51,7 @@ export const createApi = createServerFn({ method: "POST" })
       .object({
         name: z.string().min(1).max(120),
         baseUrl: z.string().url(),
+        specUrl: z.string().url().max(500).optional().nullable(),
         kind: z.enum(["internal", "third-party"]).default("internal"),
         owningTeam: z.string().max(80).optional(),
         monitorInterval: z.enum(["5m", "15m", "1h", "6h", "24h"]).default("15m"),
@@ -66,6 +67,7 @@ export const createApi = createServerFn({ method: "POST" })
         org_id: orgId,
         name: data.name,
         base_url: data.baseUrl,
+        spec_url: data.specUrl || null,
         kind: data.kind,
         owning_team: data.owningTeam ?? null,
         monitor_interval: data.monitorInterval,
@@ -117,162 +119,6 @@ export const getApiDetail = createServerFn({ method: "GET" })
     };
   });
 
-export const uploadOpenApiVersion = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
-  .inputValidator((raw: unknown) =>
-    z
-      .object({
-        apiId: z.string().uuid(),
-        specText: z.string().min(2).max(5_000_000),
-        versionLabel: z.string().max(80).optional(),
-      })
-      .parse(raw),
-  )
-  .handler(async ({ context, data }) => {
-    const { parseOpenApi, flattenEndpoints, diffSpecs, countEndpoints, summarizeSeverity } =
-      await import("./openapi-diff.server");
-
-    const spec = parseOpenApi(data.specText);
-
-    // Verify API belongs to user's org (RLS covers this; explicit check gives nice error)
-    const { data: api, error: apiErr } = await context.supabase
-      .from("apis")
-      .select("id, org_id, current_version_id")
-      .eq("id", data.apiId)
-      .maybeSingle();
-    if (apiErr) throw new Error(apiErr.message);
-    if (!api) throw new Error("API not found or you don't have access to it.");
-
-    // Load previous current version's spec for diffing
-    let previousSpec: any = null;
-    let previousVersionId: string | null = null;
-    if (api.current_version_id) {
-      const { data: prev } = await context.supabase
-        .from("api_versions")
-        .select("id, spec")
-        .eq("id", api.current_version_id)
-        .maybeSingle();
-      if (prev) {
-        previousSpec = prev.spec;
-        previousVersionId = prev.id;
-      }
-    }
-
-    const changes = diffSpecs(previousSpec, spec);
-    const summary = summarizeSeverity(changes);
-    const endpointCount = countEndpoints(spec);
-    const label = data.versionLabel ?? spec.info?.version ?? new Date().toISOString().slice(0, 10);
-
-    // Unset previous is_current
-    if (previousVersionId) {
-      await context.supabase
-        .from("api_versions")
-        .update({ is_current: false })
-        .eq("id", previousVersionId);
-    }
-
-    // Insert new version
-    const { data: versionRow, error: vErr } = await context.supabase
-      .from("api_versions")
-      .insert({
-        api_id: data.apiId,
-        version: label,
-        spec: spec as any,
-        source: "upload",
-        endpoint_count: endpointCount,
-        change_count: summary.total,
-        breaking_count: summary.breaking,
-        is_current: true,
-      })
-      .select("id")
-      .single();
-    if (vErr) throw new Error(vErr.message);
-    const versionId = versionRow.id as string;
-
-    // Insert endpoints
-    const flat = flattenEndpoints(spec);
-    if (flat.length) {
-      const rows = flat.map((e) => ({
-        version_id: versionId,
-        api_id: data.apiId,
-        method: e.method,
-        path: e.path,
-        operation_id: e.operationId ?? null,
-        spec: e.spec as any,
-      }));
-      const { error: eErr } = await context.supabase.from("endpoints").insert(rows);
-      if (eErr) throw new Error(eErr.message);
-    }
-
-    // Insert contract changes
-    if (changes.length) {
-      const rows = changes.map((c) => ({
-        api_id: data.apiId,
-        from_version_id: previousVersionId,
-        to_version_id: versionId,
-        severity: c.severity,
-        kind: c.kind,
-        endpoint_path: c.endpointPath,
-        method: c.method,
-        target: c.target,
-        summary: c.summary,
-        before_snippet: c.beforeSnippet ?? null,
-        after_snippet: c.afterSnippet ?? null,
-      }));
-      const { error: cErr } = await context.supabase.from("contract_changes").insert(rows);
-      if (cErr) throw new Error(cErr.message);
-    }
-
-    // Update API status + current version + genome
-    const genome = Math.max(0, 100 - summary.breaking * 12 - summary.risky * 4);
-    const status: "stable" | "drifting" | "breaking" =
-      summary.breaking > 0 ? "breaking" : summary.risky > 0 ? "drifting" : "stable";
-
-    await context.supabase
-      .from("apis")
-      .update({
-        current_version_id: versionId,
-        status,
-        genome,
-        last_checked: new Date().toISOString(),
-      })
-      .eq("id", data.apiId);
-
-    // Auto-open an incident on breaking changes
-    if (summary.breaking > 0) {
-      const orgId = await currentOrgId(context.supabase, context.userId);
-      const code = `INV-${Math.floor(Math.random() * 9000 + 1000)}`;
-      const { data: inc } = await context.supabase
-        .from("incidents")
-        .insert({
-          org_id: orgId,
-          api_id: data.apiId,
-          code,
-          title: `${summary.breaking} breaking change${summary.breaking > 1 ? "s" : ""} detected in new spec`,
-          severity: summary.breaking >= 3 ? "critical" : "high",
-          status: "detected",
-          summary: `Uploaded version ${label} introduced ${summary.breaking} breaking, ${summary.risky} risky, ${summary.safe} safe changes.`,
-          affected_endpoints: new Set(changes.filter((c) => c.severity === "breaking").map((c) => c.endpointPath)).size,
-        })
-        .select("id")
-        .single();
-
-      if (inc?.id) {
-        await context.supabase.from("incident_events").insert([
-          { incident_id: inc.id, kind: "breaking", label: "Contract diff completed", detail: `${summary.breaking} breaking changes across affected endpoints` },
-          { incident_id: inc.id, kind: "analyzing", label: "Blast radius analysis queued" },
-        ]);
-      }
-    }
-
-    return {
-      versionId,
-      versionLabel: label,
-      endpointCount,
-      summary,
-    };
-  });
-
 /**
  * Real spec-versioning flow backed by the semantic diff engine in ./openapi-diff.
  * Diffs the incoming spec against the current version, persists the new version,
@@ -290,127 +136,27 @@ export const submitSpecVersion = createServerFn({ method: "POST" })
       .parse(raw),
   )
   .handler(async ({ context, data }) => {
-    const { diffOpenApiSpecs, summarizeSeverity } = await import("./openapi-diff");
-
-    let spec: any;
-    try {
-      spec = JSON.parse(data.specText);
-    } catch {
-      throw new Error("Unable to parse spec — please paste valid JSON OpenAPI.");
-    }
-    if (!spec || typeof spec !== "object") throw new Error("Spec must be a JSON object.");
-
-    const METHODS = ["get", "post", "put", "patch", "delete", "head", "options"];
-    const flat: Array<{ method: string; path: string; operationId?: string; op: any }> = [];
-    for (const [path, item] of Object.entries((spec.paths ?? {}) as Record<string, any>)) {
-      for (const m of METHODS) {
-        const op = (item as any)?.[m];
-        if (op) flat.push({ method: m.toUpperCase(), path, operationId: op.operationId, op });
-      }
-    }
-
-    const { data: api, error: apiErr } = await context.supabase
-      .from("apis")
-      .select("id, current_version_id")
-      .eq("id", data.apiId)
-      .maybeSingle();
-    if (apiErr) throw new Error(apiErr.message);
-    if (!api) throw new Error("API not found or you don't have access to it.");
-
-    let previousSpec: any = {};
-    let previousVersionId: string | null = null;
-    if (api.current_version_id) {
-      const { data: prev } = await context.supabase
-        .from("api_versions")
-        .select("id, spec")
-        .eq("id", api.current_version_id)
-        .maybeSingle();
-      if (prev) {
-        previousSpec = prev.spec ?? {};
-        previousVersionId = prev.id as string;
-      }
-    }
-
-    const changes = diffOpenApiSpecs(previousSpec, spec);
-    const summary = summarizeSeverity(changes);
-    const total = changes.length;
-    const label = data.versionLabel?.trim() || spec.info?.version || new Date().toISOString().slice(0, 10);
-
-    if (previousVersionId) {
-      await context.supabase.from("api_versions").update({ is_current: false }).eq("id", previousVersionId);
-    }
-
-    const { data: versionRow, error: vErr } = await context.supabase
-      .from("api_versions")
-      .insert({
-        api_id: data.apiId,
-        version: label,
-        spec,
-        source: "upload",
-        endpoint_count: flat.length,
-        change_count: total,
-        breaking_count: summary.breaking,
-        is_current: true,
-      })
-      .select("id")
-      .single();
-    if (vErr) throw new Error(vErr.message);
-    const versionId = versionRow.id as string;
-
-    if (flat.length) {
-      const { error: eErr } = await context.supabase.from("endpoints").insert(
-        flat.map((e) => ({
-          version_id: versionId,
-          api_id: data.apiId,
-          method: e.method,
-          path: e.path,
-          operation_id: e.operationId ?? null,
-          spec: e.op,
-        })),
-      );
-      if (eErr) throw new Error(eErr.message);
-    }
-
-    if (changes.length) {
-      const { error: cErr } = await context.supabase.from("contract_changes").insert(
-        changes.map((c) => ({
-          api_id: data.apiId,
-          from_version_id: previousVersionId,
-          to_version_id: versionId,
-          severity: c.severity,
-          kind: c.kind,
-          endpoint_path: c.endpoint_path,
-          method: c.method,
-          target: c.target,
-          summary: c.summary,
-          before_snippet: c.before_snippet,
-          after_snippet: c.after_snippet,
-        })),
-      );
-      if (cErr) throw new Error(cErr.message);
-    }
-
-    const status: "stable" | "drifting" | "breaking" =
-      summary.breaking > 0 ? "breaking" : summary.risky > 0 ? "drifting" : "stable";
-    const genome = Math.max(0, 100 - summary.breaking * 15 - summary.risky * 5);
-
-    const { error: uErr } = await context.supabase
-      .from("apis")
-      .update({
-        current_version_id: versionId,
-        status,
-        genome,
-        last_checked: new Date().toISOString(),
-      })
-      .eq("id", data.apiId);
-    if (uErr) throw new Error(uErr.message);
-
-    return {
-      versionId,
-      versionLabel: label,
-      endpointCount: flat.length,
-      summary: { ...summary, total },
-      status,
-      genome,
-    };
+    const { applySpecDiff } = await import("./apply-spec-diff.server");
+    return applySpecDiff(context.supabase, data.apiId, data.specText, data.versionLabel, "upload");
   });
+
+/** Update the mutable settings of an API (currently the live spec URL). */
+export const updateApiSettings = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((raw: unknown) =>
+    z
+      .object({
+        apiId: z.string().uuid(),
+        specUrl: z.string().url().max(500).nullable(),
+      })
+      .parse(raw),
+  )
+  .handler(async ({ context, data }) => {
+    const { error } = await context.supabase
+      .from("apis")
+      .update({ spec_url: data.specUrl })
+      .eq("id", data.apiId);
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
+

@@ -7,7 +7,7 @@ import { toast } from "sonner";
 import { PageHeader, PageBody, Panel } from "@/components/dashboard/page-shell";
 import { StatusBadge, SeverityPill } from "@/components/ui-kit/status-badge";
 import { GenomeRing } from "@/components/ui-kit/metrics";
-import { getApiDetail, submitSpecVersion } from "@/lib/apis.functions";
+import { getApiDetail, submitSpecVersion, updateApiSettings } from "@/lib/apis.functions";
 import {
   Dialog,
   DialogContent,
@@ -54,6 +54,19 @@ function ApiDetail() {
   const [uploadOpen, setUploadOpen] = useState(false);
   const [specText, setSpecText] = useState("");
   const [versionLabel, setVersionLabel] = useState("");
+  const [specUrl, setSpecUrl] = useState<string | null>(null);
+  const settingsFn = useServerFn(updateApiSettings);
+
+  const saveSpecUrl = useMutation({
+    mutationFn: (value: string) =>
+      settingsFn({ data: { apiId, specUrl: value.trim() || null } }),
+    onSuccess: () => {
+      toast.success("Spec URL saved — automatic monitoring will use it");
+      qc.invalidateQueries({ queryKey: ["api-detail", apiId] });
+      qc.invalidateQueries({ queryKey: ["apis"] });
+    },
+    onError: (e: any) => toast.error(e?.message ?? "Failed to save spec URL"),
+  });
 
   const submitMutation = useMutation({
     mutationFn: () =>
@@ -98,7 +111,10 @@ function ApiDetail() {
         actions={
           <div className="flex items-center gap-2">
             <button
-              onClick={() => setUploadOpen(true)}
+              onClick={() => {
+                setSpecUrl(api.spec_url ?? "");
+                setUploadOpen(true);
+              }}
               className="inline-flex items-center gap-1.5 rounded-lg border border-hairline bg-surface px-3 py-2 text-sm text-muted-foreground hover:text-foreground"
             >
               <Upload className="h-4 w-4" /> Upload new spec version
@@ -248,6 +264,29 @@ function ApiDetail() {
                 value={versionLabel}
                 onChange={(e) => setVersionLabel(e.target.value)}
               />
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="spec-url">Live spec URL (optional)</Label>
+              <div className="flex gap-2">
+                <Input
+                  id="spec-url"
+                  placeholder="https://api.example.com/openapi.json"
+                  value={specUrl ?? ""}
+                  onChange={(e) => setSpecUrl(e.target.value)}
+                />
+                <button
+                  type="button"
+                  disabled={saveSpecUrl.isPending}
+                  onClick={() => saveSpecUrl.mutate(specUrl ?? "")}
+                  className="shrink-0 rounded-lg border border-hairline bg-surface px-3 py-2 text-sm text-muted-foreground hover:text-foreground disabled:opacity-50"
+                >
+                  Save
+                </button>
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Where the live OpenAPI JSON is served. Saved separately — we re-check it on your
+                monitor interval.
+              </p>
             </div>
             <div className="space-y-1.5">
               <Label htmlFor="spec-file">Spec file</Label>
