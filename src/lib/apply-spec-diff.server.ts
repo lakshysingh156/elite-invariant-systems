@@ -53,7 +53,7 @@ export async function applySpecDiff(
 
   const { data: api, error: apiErr } = await supabase
     .from("apis")
-    .select("id, name, org_id, current_version_id")
+    .select("id, name, org_id, current_version_id, github_repo")
     .eq("id", apiId)
     .maybeSingle();
   if (apiErr) throw new Error(apiErr.message);
