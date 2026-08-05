@@ -296,6 +296,18 @@ function ApiInventory() {
                 Where the live OpenAPI JSON is served. Set this and we'll re-check it automatically.
               </p>
             </div>
+            <div>
+              <Label>GitHub repo (optional)</Label>
+              <Input
+                value={form.githubRepo}
+                onChange={(e) => setForm({ ...form, githubRepo: e.target.value })}
+                placeholder="owner/repo"
+              />
+              <p className="mt-1 text-xs text-muted-foreground">
+                Breaking changes open a pull request on this repo automatically.
+              </p>
+            </div>
+
             <div className="grid grid-cols-2 gap-3">
               <div>
                 <Label>Type</Label>
