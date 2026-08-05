@@ -59,6 +59,7 @@ function ApiInventory() {
     name: "",
     baseUrl: "",
     specUrl: "",
+    githubRepo: "",
     kind: "internal" as "internal" | "third-party",
     owningTeam: "",
     monitorInterval: "15m",
@@ -72,6 +73,7 @@ function ApiInventory() {
           name: form.name,
           baseUrl: form.baseUrl,
           specUrl: form.specUrl.trim() || null,
+          githubRepo: form.githubRepo.trim() || null,
           kind: form.kind,
           owningTeam: form.owningTeam || undefined,
           monitorInterval: form.monitorInterval as "5m" | "15m" | "1h" | "6h" | "24h",
@@ -83,7 +85,7 @@ function ApiInventory() {
       toast.success("API registered");
       qc.invalidateQueries({ queryKey: ["apis"] });
       setRegisterOpen(false);
-      setForm({ name: "", baseUrl: "", specUrl: "", kind: "internal", owningTeam: "", monitorInterval: "15m", tags: "" });
+      setForm({ name: "", baseUrl: "", specUrl: "", githubRepo: "", kind: "internal", owningTeam: "", monitorInterval: "15m", tags: "" });
       setUploadOpen(res.id);
     },
     onError: (err) => toast.error(err instanceof Error ? err.message : "Failed"),
