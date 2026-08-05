@@ -37,7 +37,7 @@ export const listApis = createServerFn({ method: "GET" })
     const orgId = await currentOrgId(context.supabase, context.userId);
     const { data, error } = await context.supabase
       .from("apis")
-      .select("id, name, base_url, spec_url, kind, tags, owning_team, monitor_interval, status, genome, current_version_id, last_checked, updated_at")
+      .select("id, name, base_url, spec_url, github_repo, kind, tags, owning_team, monitor_interval, status, genome, current_version_id, last_checked, updated_at")
       .eq("org_id", orgId)
       .order("updated_at", { ascending: false });
     if (error) throw new Error(error.message);
@@ -52,6 +52,7 @@ export const createApi = createServerFn({ method: "POST" })
         name: z.string().min(1).max(120),
         baseUrl: z.string().url(),
         specUrl: z.string().url().max(500).optional().nullable(),
+        githubRepo: z.string().max(200).optional().nullable(),
         kind: z.enum(["internal", "third-party"]).default("internal"),
         owningTeam: z.string().max(80).optional(),
         monitorInterval: z.enum(["5m", "15m", "1h", "6h", "24h"]).default("15m"),
@@ -68,6 +69,7 @@ export const createApi = createServerFn({ method: "POST" })
         name: data.name,
         base_url: data.baseUrl,
         spec_url: data.specUrl || null,
+        github_repo: data.githubRepo || null,
         kind: data.kind,
         owning_team: data.owningTeam ?? null,
         monitor_interval: data.monitorInterval,
@@ -148,15 +150,52 @@ export const updateApiSettings = createServerFn({ method: "POST" })
       .object({
         apiId: z.string().uuid(),
         specUrl: z.string().url().max(500).nullable(),
+        githubRepo: z.string().max(200).nullable().optional(),
       })
       .parse(raw),
   )
   .handler(async ({ context, data }) => {
     const { error } = await context.supabase
       .from("apis")
-      .update({ spec_url: data.specUrl })
+      .update({ spec_url: data.specUrl, github_repo: data.githubRepo ?? null })
       .eq("id", data.apiId);
     if (error) throw new Error(error.message);
     return { ok: true };
   });
 
+
+/** Real data behind the GitHub Integration page. */
+export const getGithubOverview = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const orgId = await currentOrgId(context.supabase, context.userId);
+
+    const [apisRes, incidentsRes] = await Promise.all([
+      context.supabase
+        .from("apis")
+        .select("id, name, github_repo, status")
+        .eq("org_id", orgId)
+        .order("name"),
+      context.supabase
+        .from("incidents")
+        .select("id, code, title, severity, status, opened_at, github_pr_url, github_pr_number, api_id")
+        .eq("org_id", orgId)
+        .order("opened_at", { ascending: false })
+        .limit(100),
+    ]);
+
+    const apis = apisRes.data ?? [];
+    const incidents = incidentsRes.data ?? [];
+    const nameById = new Map(apis.map((a: any) => [a.id, a.name]));
+    const prs = incidents
+      .filter((i: any) => i.github_pr_url)
+      .map((i: any) => ({ ...i, api_name: nameById.get(i.api_id) ?? "—" }));
+
+    return {
+      apis,
+      connectedRepos: apis.filter((a: any) => a.github_repo).length,
+      prCount: prs.length,
+      criticalCount: incidents.filter((i: any) => i.severity === "critical").length,
+      prs: prs.slice(0, 20),
+    };
+  });

@@ -53,7 +53,7 @@ export async function applySpecDiff(
 
   const { data: api, error: apiErr } = await supabase
     .from("apis")
-    .select("id, name, org_id, current_version_id")
+    .select("id, name, org_id, current_version_id, github_repo")
     .eq("id", apiId)
     .maybeSingle();
   if (apiErr) throw new Error(apiErr.message);
@@ -182,6 +182,42 @@ export async function applySpecDiff(
           detail: `${summary.breaking} breaking changes across ${affected} endpoints`,
         },
       ]);
+
+      // Real GitHub PR with a migration note for the breaking changes.
+      if (api.github_repo && process.env["GITHUB_TOKEN"]) {
+        try {
+          const { openBreakingChangePr } = await import("./github-pr.server");
+          const pr = await openBreakingChangePr({
+            repo: api.github_repo as string,
+            apiName: api.name as string,
+            versionLabel: label,
+            changes: changes
+              .filter((c) => c.severity === "breaking")
+              .map((c) => ({
+                endpoint_path: c.endpoint_path ?? null,
+                method: c.method ?? null,
+                target: c.target,
+                summary: c.summary,
+              })),
+          });
+          if (pr) {
+            await supabase
+              .from("incidents")
+              .update({ github_pr_url: pr.url, github_pr_number: pr.number })
+              .eq("id", incidentId);
+            await supabase.from("incident_events").insert([
+              {
+                incident_id: incidentId,
+                kind: "github",
+                label: "Pull request opened",
+                detail: pr.url,
+              },
+            ]);
+          }
+        } catch (e) {
+          console.error("[invariant] GitHub PR creation failed:", e);
+        }
+      }
     }
   }
 

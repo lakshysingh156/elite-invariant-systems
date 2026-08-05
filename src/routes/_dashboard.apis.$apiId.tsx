@@ -55,11 +55,14 @@ function ApiDetail() {
   const [specText, setSpecText] = useState("");
   const [versionLabel, setVersionLabel] = useState("");
   const [specUrl, setSpecUrl] = useState<string | null>(null);
+  const [githubRepo, setGithubRepo] = useState<string | null>(null);
   const settingsFn = useServerFn(updateApiSettings);
 
   const saveSpecUrl = useMutation({
     mutationFn: (value: string) =>
-      settingsFn({ data: { apiId, specUrl: value.trim() || null } }),
+      settingsFn({
+        data: { apiId, specUrl: value.trim() || null, githubRepo: (githubRepo ?? "").trim() || null },
+      }),
     onSuccess: () => {
       toast.success("Spec URL saved — automatic monitoring will use it");
       qc.invalidateQueries({ queryKey: ["api-detail", apiId] });
@@ -113,6 +116,7 @@ function ApiDetail() {
             <button
               onClick={() => {
                 setSpecUrl(api.spec_url ?? "");
+                setGithubRepo(api.github_repo ?? "");
                 setUploadOpen(true);
               }}
               className="inline-flex items-center gap-1.5 rounded-lg border border-hairline bg-surface px-3 py-2 text-sm text-muted-foreground hover:text-foreground"
@@ -286,6 +290,18 @@ function ApiDetail() {
               <p className="text-xs text-muted-foreground">
                 Where the live OpenAPI JSON is served. Saved separately — we re-check it on your
                 monitor interval.
+              </p>
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="github-repo">GitHub repo (optional)</Label>
+              <Input
+                id="github-repo"
+                placeholder="owner/repo"
+                value={githubRepo ?? ""}
+                onChange={(e) => setGithubRepo(e.target.value)}
+              />
+              <p className="text-xs text-muted-foreground">
+                Breaking changes open a pull request here automatically. Saved with the spec URL.
               </p>
             </div>
             <div className="space-y-1.5">

@@ -39,8 +39,14 @@ integration layer.
   sparkline, keyboard nav.
 - **AI Copilot** — investigate an incident in natural language; streams
   hypotheses grounded in your contract history + runtime signals.
-- **GitHub Integration** — auto-open PRs with migration patches for the
-  breaking changes it detects.
+- **GitHub Integration** — real Octokit/PAT integration: when a breaking
+  change is detected on an API with a linked `owner/repo`, Invariant branches
+  off the default branch, commits `CONTRACT_CHANGES.md`, opens a PR, and links
+  it back onto the incident.
+- **Scheduled monitoring** — `pg_cron` hits `/api/public/hooks/monitor-apis`
+  every 5 minutes (secured by `MONITOR_WEBHOOK_SECRET`), pulls each API's live
+  `spec_url` when it's due, and runs the same diff + incident pipeline as a
+  manual upload.
 - **Cinematic marketing site** — intro reveal, live topology backdrop,
   rotating scan-dial section, all reduced-motion aware.
 
@@ -80,6 +86,34 @@ semantic tokens — no hardcoded hex in components. Two accent colors:
 Depth uses a shared `.elevate` utility (hairline + inset top highlight +
 soft shadow). Signature moments use `.brand-glow` or `.signal-glow`.
 
+## Backend
+
+Everything runs on the Lovable Cloud (Postgres + auth) plus TanStack Start
+server functions — no separate service.
+
+| Piece | Where |
+| --- | --- |
+| Auth + orgs | `organizations`, `organization_members`, RLS on every table |
+| API registry | `apis` (`base_url`, `spec_url`, `github_repo`, `monitor_interval`, `genome`, `status`) |
+| Versions & contracts | `api_versions`, `endpoints`, `contract_changes` |
+| Incidents | `incidents` (`github_pr_url`, `github_pr_number`), `incident_events` |
+| Diff + persist pipeline | `src/lib/apply-spec-diff.server.ts` (single source of truth) |
+| Diff rules | `src/lib/openapi-diff.ts` |
+| GitHub PR bot | `src/lib/github-pr.server.ts` |
+| Scheduled monitor | `src/routes/api/public/hooks/monitor-apis.ts` + pg_cron every 5m |
+| AI copilot | `src/lib/copilot.functions.ts` via the Lovable AI Gateway |
+
+### Secrets
+
+| Name | Purpose |
+| --- | --- |
+| `MONITOR_WEBHOOK_SECRET` | Sent as `x-monitor-secret` by the cron job; the monitor route rejects anything else |
+| `GITHUB_TOKEN` | GitHub PAT with `repo` scope, used to branch/commit/open PRs |
+| `LOVABLE_API_KEY` | AI Gateway access for the copilot |
+
+Genome scoring: start at 100, −15 per breaking change, −5 per risky, floored
+at 0. Status resolves to `breaking` → `drifting` → `stable`.
+
 ## Getting started
 
 ```bash
@@ -113,8 +147,13 @@ src/
 - [x] Full dashboard shell with 10 screens
 - [x] Reliability graph (d3-force)
 - [x] AI Copilot UI
-- [ ] Backend: Postgres schema, ingest workers, contract diff engine
-- [ ] Real GitHub App + PR bot
+- [x] Backend: Postgres schema, RLS, auth, org workspaces
+- [x] Semantic OpenAPI diff engine + versioning + genome scoring
+- [x] Auto-incidents on breaking changes
+- [x] Scheduled spec monitoring via pg_cron + pg_net
+- [x] Real GitHub PR bot (PAT + Octokit)
+- [ ] GitHub App (org-wide install) instead of PAT
+- [ ] Runtime traffic ingestion
 - [ ] Self-hosted deployment guide
 
 ---
