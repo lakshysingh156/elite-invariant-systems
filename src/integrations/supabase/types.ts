@@ -67,6 +67,7 @@ export type Database = {
           created_at: string
           current_version_id: string | null
           genome: number
+          github_repo: string | null
           id: string
           kind: Database["public"]["Enums"]["api_kind"]
           last_checked: string | null
@@ -84,6 +85,7 @@ export type Database = {
           created_at?: string
           current_version_id?: string | null
           genome?: number
+          github_repo?: string | null
           id?: string
           kind?: Database["public"]["Enums"]["api_kind"]
           last_checked?: string | null
@@ -101,6 +103,7 @@ export type Database = {
           created_at?: string
           current_version_id?: string | null
           genome?: number
+          github_repo?: string | null
           id?: string
           kind?: Database["public"]["Enums"]["api_kind"]
           last_checked?: string | null
@@ -379,6 +382,8 @@ export type Database = {
           api_id: string | null
           assignee: string | null
           code: string
+          github_pr_number: number | null
+          github_pr_url: string | null
           id: string
           opened_at: string
           org_id: string
@@ -395,6 +400,8 @@ export type Database = {
           api_id?: string | null
           assignee?: string | null
           code: string
+          github_pr_number?: number | null
+          github_pr_url?: string | null
           id?: string
           opened_at?: string
           org_id: string
@@ -411,6 +418,8 @@ export type Database = {
           api_id?: string | null
           assignee?: string | null
           code?: string
+          github_pr_number?: number | null
+          github_pr_url?: string | null
           id?: string
           opened_at?: string
           org_id?: string
