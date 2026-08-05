@@ -8,12 +8,8 @@ export const Route = createFileRoute("/api/public/hooks/monitor-apis")({
   server: {
     handlers: {
       POST: async ({ request }) => {
-        const expected =
-          process.env["SUPABASE_ANON_KEY"] ?? process.env["SUPABASE_PUBLISHABLE_KEY"] ?? "";
-        const provided =
-          request.headers.get("apikey") ??
-          request.headers.get("authorization")?.replace(/^Bearer\s+/i, "") ??
-          "";
+        const expected = process.env["MONITOR_WEBHOOK_SECRET"] ?? "";
+        const provided = request.headers.get("x-monitor-secret") ?? "";
         if (!expected || provided !== expected) {
           return new Response(JSON.stringify({ error: "Unauthorized" }), {
             status: 401,
