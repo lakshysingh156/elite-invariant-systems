@@ -151,6 +151,7 @@ src/
 - [x] Semantic OpenAPI diff engine + versioning + genome scoring
 - [x] Auto-incidents on breaking changes
 - [x] Scheduled spec monitoring via pg_cron + pg_net
+  - verified via cron.job table.
 - [x] Real GitHub PR bot (PAT + Octokit)
 - [ ] GitHub App (org-wide install) instead of PAT
 - [ ] Runtime traffic ingestion
